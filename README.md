@@ -1,2 +1,2 @@
 # FancyAPS
-Code for "Adaptive Selection of the Optimal Adjustment Set and  Working Model in Large Randomized Trials"
+Code for "Adaptive Selection of the Optimal Strategy  to Improve Precision and Power in Randomized Trials"
