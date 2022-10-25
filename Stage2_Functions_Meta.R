@@ -125,7 +125,7 @@ Stage2 <- function(goal='aRR', target='indv', data.input,
     gform <- select$gform
     
   } else{
-    QAdj <- gAdj <- 'U'
+    # QAdj <- gAdj <- 'U' # do NOT overwrite the user inputs for QAdj and gAdj if do.data.adapt=F
     Q.index <- g.index <- 1
   }
   
@@ -373,6 +373,3 @@ get.inference <- function(goal='RD', psi=NA, psi.hat, se, df=99, sig.level=0.05,
   data.frame(est=psi.hat,  CI.lo, CI.hi, se=se,  pval, bias, cover, reject)
   
 }
-
-
-
