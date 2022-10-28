@@ -1,6 +1,7 @@
 
 rm(list = ls())
-
+library(ggplot2)
+library(hrbrthemes)
 n <- 500
 nReps <- 500
 V <- 5
@@ -42,10 +43,26 @@ get.metrics <- function(estimator){
   yay
 }
 
+get.selection <- function(cand, this.var, this.form ){
+  winner <- data.frame(matrix(0, nrow=1, ncol=length(cand)+1)) 
+  colnames(winner) <- c('unadj',cand)
+  winner['unadj'] <- sum(this.var==1 & this.form=='glm')
+  winner['glm']<- sum(this.var!=1 & this.form=='glm')
+  winner['stepwise'] <- sum(this.form=='stepwise')
+  winner['step.interaction'] <- sum(this.form=='step.interaction')
+  winner['lasso'] <- sum(this.form=='lasso')
+  winner['mars'] <- sum(this.form=='mars')
+  winner
+}
+
+
 YAY <- NULL
 ests <- c('Unadjusted', 'Static', 'Small APS', 'Large APS')
 STRATIFY <- c(F,T)
 dgp <- c('Linear', 'Interactive', 'Polynomial')
+
+WINNERQ <- WINNERG <- NULL
+
 
 for(j in 1:length(expt_type)){
   for(k in 1:2){
@@ -69,6 +86,23 @@ for(j in 1:length(expt_type)){
   yay <- cbind(yay, savings=(1-yay$re))
   print(round(mean(UNADJ$psi),2))
   YAY <- rbind(YAY, yay)
+  
+  winnerq <- cbind(expt=expt_type[j], stratify=STRATIFY[k], 
+                  get.selection(cand=unique(AP.fancy$cand.Qform),
+                    this.var= SELECT$QAdj,
+                    this.form= SELECT$Qform)
+  )
+  winnerq[, 3:8] <- paste0(round(winnerq[,3:8]/500*100, 1), '%')
+  WINNERQ <- rbind(WINNERQ, winnerq)
+  
+  
+  winnerg <- cbind(expt=expt_type[j], stratify=STRATIFY[k],
+                   get.selection(cand=unique(AP.fancy$cand.gform),
+                                 this.var= SELECT$gAdj,
+                                 this.form= SELECT$gform)
+  )
+  winnerg[, 3:8] <- paste0(round(winnerg[,3:8]/500*100, 1), '%')
+  WINNERG <- rbind(WINNERG, winnerg)
   
   data <- data.frame(
     x=c(1:2000), 
@@ -95,7 +129,7 @@ for(j in 1:length(expt_type)){
       axis.title.x = element_blank(),
       axis.title.y = element_blank())
   ggsave(filename = paste0(file.name, '.eps'))
-  rm(yay, data)
+  rm(yay, winnerq, winnerg, data)
 
 }
 }
@@ -111,3 +145,6 @@ round( summary(YAY[YAY$ests=='Large APS', 'savings'])*100, 0)
 round( summary(YAY[YAY$ests=='Small APS', 're']), 3)
 round( summary(YAY[YAY$ests=='Small APS', 'savings'])*100, 0)
 
+
+xtable(WINNERQ)
+xtable(WINNERG)
