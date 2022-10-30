@@ -1,6 +1,28 @@
-# Function to call to generate synthetic data 
+######################################################################
+# Sim_Functions.R 
+# R code for different data generating processes for simulated data 
+######################################################################
+
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+# generate.data.wrapper: Function to generate synthetic data
+# input: 
+#   n: sample size (In our paper, we use 40, 100, 500)
+#   effect: boolean flag to specify whether there is an effect or if the effect is NULL
+#   sim: "contY" or "binY" to specify whether the outcome is continous or binary 
+#     If continuous outcome, we use generate.cont.Y as the data generating process function 
+#     If binary outcome, we use generate.bin.Y as the data generating process function 
+#   stratify: Flag to specify stratified randomization or not
+#   expt_type: Data Generating Process
+#   verbose: Flag to print details of the simulation
+#     
+# output: 
+#   returns the simulated data with the values for all covariates (W), treatment (A) and outcome (Y)
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 generate.data.wrapper <- function(n, effect, sim, stratify=F, expt_type, verbose=F){
   
+  # Step 1: Generate the covariates and outcome for all treatment (A = 0, A = 1)
   if(sim == "contY"){
     full.data <- gen.data.contY(N = n, expt_type = expt_type, effect = effect, verbose = verbose)
   } else if(sim=='binY'){
@@ -8,7 +30,7 @@ generate.data.wrapper <- function(n, effect, sim, stratify=F, expt_type, verbose
   } 
   
   if(stratify){
-    # stratified randomization probably a more clever way to do this
+    # stratified randomization
     # if binary outcome, then need to discretize into a binary W1
     strata.var <- full.data$W1 > 0
     A <- rep(NA,n)
@@ -18,17 +40,39 @@ generate.data.wrapper <- function(n, effect, sim, stratify=F, expt_type, verbose
     A[!strata.var] <- sample(c(rep(1,ceiling(n.W0/2)), rep(0,ceiling(n.W0/2))))[1:n.W0]
     full.data$A <- A
 
+    # Print data after generation
     if(verbose) print( table(A))
     if(verbose) print( table(A, strata.var))
   } else{
+    # Else sample for specified treatment
     full.data$A <-sample(c(rep(1,n/2), rep(0,n/2)))
   }
+  # Generate observed and counterfactual outcome
   full.data$Y <- ifelse(full.data$A == 1, full.data$Y1, full.data$Y0)
   full.data$alpha <- 1
   full.data
 }
 
-# Function to generate data with continuous Y
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+# generate.data.wrapper: Function to generate synthetic data for continous Y
+# input: 
+#   N: sample size (In our paper, we use 40, 100, 500)
+#   expt_type: Data Generating Process
+#     "linear_1": outcome is a simple linear function of the covariates (with different versions 1,2,3)
+#     "multicollinear": outcome is a linear function of the covariates and interaction terms 
+#     "squared": outcome is a squared function of the covariates
+#     "polynomial": outcome is a higher order polynomial function of the covariates
+#     "noisy_linear_1": outcome is a simple linear function of the covariates with additional noise terms (with different versions 1,2,3)
+#     "noisy_multicollinear_cand1": outcome is a function of the covariates and interaction terms with additional noise terms (with different versions 1,2,3)
+#     "noisy_squared": outcome is a squared function of the covariates with additional noise terms
+#     "noisy_polynomial": outcome is a higher order polynomial function of the covariates with additional noise terms
+#   verbose: Flag to print details of the simulation
+#     
+# output: 
+#   returns the outcome data for both values of treatment Y0 (when A = 0) and Y1 (when A = 1)
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 gen.data.contY <- function(N, expt_type, effect, verbose=F){
   # Keep the covariates constant, and change the synthetic function 
   W1 <- rbinom(N,size=1, prob=0.5) 
@@ -126,11 +170,29 @@ gen.data.contY <- function(N, expt_type, effect, verbose=F){
     Y1 <- Y0 #if under the null, then set the counterfactual outcome Y1 to Y0
   }
   if(verbose) print(round(c(mean(Y1), mean(Y0)),2))
-  
   data.frame(cbind(id=1:n, U=1, W1, W2, W3, W4, W5, Y1, Y0) )
 }
 
-# Function to generate data with binary Y
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+# generate.data.wrapper: Function to generate synthetic data for binary Y
+# input: 
+#   N: sample size (In our paper, we use 40, 100, 500)
+#   expt_type: Data Generating Process
+#     "linear_1": outcome is a simple linear function of the covariates (with different versions 1,2,3)
+#     "multicollinear": outcome is a linear function of the covariates and interaction terms 
+#     "squared": outcome is a squared function of the covariates
+#     "polynomial": outcome is a higher order polynomial function of the covariates
+#     "noisy_linear_1": outcome is a simple linear function of the covariates with additional noise terms (with different versions 1,2,3)
+#     "noisy_multicollinear_cand1": outcome is a function of the covariates and interaction terms with additional noise terms (with different versions 1,2,3)
+#     "noisy_squared": outcome is a squared function of the covariates with additional noise terms
+#     "noisy_polynomial": outcome is a higher order polynomial function of the covariates with additional noise terms
+#   verbose: Flag to print details of the simulation
+#     
+# output: 
+#   returns the outcome data for both values of treatment Y0 (when A = 0) and Y1 (when A = 1)
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 gen.data.binY <- function(N, expt_type, effect, verbose=F){
   # Keep the covariates constant, and change the synthetic function 
   W1 <- rnorm(N, 0, 1)
@@ -239,6 +301,7 @@ gen.data.binY <- function(N, expt_type, effect, verbose=F){
   if(verbose){
     print(round(c(mean(Y1), mean(Y0)),2))
   }
+  # Error check if the binary outcome is too rare or too common which throws an error with glm.fit()
   if(unique(is.infinite(Y1)) != FALSE){ stop("Something wrong")}
   if(unique(is.infinite(Y0)) != FALSE){ stop("Something wrong")}
   if(unique(is.nan(Y1)) != FALSE){ stop("Something wrong")}
