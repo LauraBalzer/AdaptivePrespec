@@ -56,9 +56,6 @@ do.adaptive.prespec<- function(goal, target='indv', break.match=T, Ldata, V=5,
       folds[[v]] <- unique.ids[v]
     }
   }
-  # ******** UPDATE LUCAS in CV.selector - dont need to pass in unique.ids ///
-  #         instead need to pass the independent unit
-  #----
   
   if( is.null(QAdj) ){
     
