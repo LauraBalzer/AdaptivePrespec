@@ -38,8 +38,8 @@ large_aps  <- get.cand.adj(all.cand = all_cand,
 
 set.seed(1)
 
-nReps <- 500
-sim.cols <- c('est', 'bias', 'cover','reject')
+nReps <- 5000
+sim.cols <- c('bias', 'cover','reject')
 UNADJ <-  data.frame(matrix(NA, nrow=nReps, ncol=length(sim.cols)))
 colnames(UNADJ) <- sim.cols
 SMALL <- BIG <- UNADJ 

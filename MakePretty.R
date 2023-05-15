@@ -15,13 +15,13 @@ n <- 500
 # 2. Number of replications 
 nReps <- 5000
 # 3. Number of folds in cross validation, V = 10 when n = 40, 100 and V = 5 otherwise
-V <- 5
+V <- ifelse(n==40,10,5)
 # 4. Specify whether we should include MARS 
 incl.mars <- T
 # 5. Verbose setting describes in detail the outputs produced 
 verbose <- F
 # 6. Flag for continuous outcome 
-sim_flag <- F
+sim_flag <- T
 if(sim_flag == TRUE){
   sim <- "contY"
 } else {
@@ -68,16 +68,18 @@ get.metrics <- function(estimator){
 # Function that computes the metrics for selected candidate algorithms 
 # winner is a data.frame that computes the proportion of times each candidate algorithm was selected for adjustment
 #=====================================================
-get.selection <- function(cand, this.var, this.form ){
-  winner <- data.frame(matrix(0, nrow=1, ncol=length(cand)+1)) 
-  colnames(winner) <- c('unadj',cand)
-  winner['unadj'] <- sum(this.var==1 & this.form=='glm')
-  winner['glm']<- sum(this.var!=1 & this.var!=-99 & this.form=='glm')
-  winner['main']<- sum(this.var==-99 & this.form=='glm')
-  winner['stepwise'] <- sum(this.form=='stepwise')
-  winner['step.interaction'] <- sum(this.form=='step.interaction')
-  winner['lasso'] <- sum(this.form=='lasso')
-  winner['mars'] <- sum(this.form=='mars')
+get.selection <- function(this.var, this.form ){
+  cand <- c('Unadjusted','GLM', 'Main terms', 'Stepwise', 'Step w. interaction',
+            'LASSO', 'MARS')
+  winner <- data.frame(matrix(0, nrow=1, ncol=length(cand))) 
+  colnames(winner) <- cand
+  winner['Unadjusted'] <- sum(this.var==1 & this.form=='glm')
+  winner['GLM']<- sum(this.var!=1 & this.var!=-99 & this.form=='glm')
+  winner['Main terms']<- sum(this.var==-99 & this.form=='glm')
+  winner['Stepwise'] <- sum(this.form=='stepwise')
+  winner['Step w. interaction'] <- sum(this.form=='step.interaction')
+  winner['LASSO'] <- sum(this.form=='lasso')
+  winner['MARS'] <- sum(this.form=='mars')
   winner
 }
 
@@ -93,7 +95,7 @@ get.selection <- function(cand, this.var, this.form ){
 YAY <- NULL
 ests <- c('Unadjusted', 'Static', 'Small APS', 'Large APS')
 STRATIFY <- c(F,T)
-dgp <- c('Sad', 'Linear', 'Interactive', 'Polynomial')
+dgp <- c('Txt only', 'Linear', 'Interactive', 'Polynomial')
 WINNERQ <- WINNERG <- NULL
 
 
@@ -121,36 +123,34 @@ for(j in 1:length(expt_type)){
   yay <- cbind(expt=expt_type[j], stratify=STRATIFY[k], 
                ests, yay, var.ratio=yay[1,'var']/yay[,'var'], re=yay[,'mse']/yay[1,'mse'] )
   yay <- cbind(yay, savings=(1-yay$re))
-  print(paste0("Unadjusted Psi", round(mean(UNADJ$psi),2)))
+  print(paste0("Unadjusted Psi: ", round(mean(UNADJ$psi),2)))
   
   YAY <- rbind(YAY, yay)
   
   winnerq <- cbind(expt=expt_type[j], stratify=STRATIFY[k], 
-                  get.selection(cand=unique(AP.fancy$cand.Qform),
-                    this.var= SELECT$QAdj,
-                    this.form= SELECT$Qform)
+                  get.selection(this.var= SELECT$QAdj, this.form= SELECT$Qform)
   )
-  winnerq[, 3:8] <- paste0(round(winnerq[,3:8]/nReps*100, 1), '%')
+  winnerq[, 3:ncol(winnerq)] <- paste0(round(winnerq[,3:ncol(winnerq)]/nReps*100, 1), '%')
   WINNERQ <- rbind(WINNERQ, winnerq)
   
   
   winnerg <- cbind(expt=expt_type[j], stratify=STRATIFY[k],
-                   get.selection(cand=unique(AP.fancy$cand.gform),
-                                 this.var= SELECT$gAdj,
+                   get.selection(this.var= SELECT$gAdj,
                                  this.form= SELECT$gform)
   )
-  winnerg[, 3:8] <- paste0(round(winnerg[,3:8]/nReps*100, 1), '%')
+  winnerg[, 3:ncol(winnerg)] <- paste0(round(winnerg[,3:ncol(winnerg)]/nReps*100, 1), '%')
   WINNERG <- rbind(WINNERG, winnerg)
   
-  # Create the data frame that stores all the 95%CI metrics
-  data <- data.frame(
-    x=c(1: (nReps*4)), 
-    value1=c(UNADJ[["CI.lo"]],FORCE[["CI.lo"]],SIMPLE[["CI.lo"]],FANCY[["CI.lo"]]), 
-    value2=c(UNADJ[["CI.hi"]],FORCE[["CI.hi"]],SIMPLE[["CI.hi"]],FANCY[["CI.hi"]]),
-    ests=c(rep('Unadjusted',nReps), rep('Static',nReps), rep('Small APS', nReps), rep('Large APS', nReps))
-  )
 
-  if(effect){
+  if(effect & n==500){
+    # Create the data frame that stores all the 95%CI metrics
+    data <- data.frame(
+      x=c(1: (nReps*4)), 
+      value1=c(UNADJ[["CI.lo"]],FORCE[["CI.lo"]],SIMPLE[["CI.lo"]],FANCY[["CI.lo"]]), 
+      value2=c(UNADJ[["CI.hi"]],FORCE[["CI.hi"]],SIMPLE[["CI.hi"]],FANCY[["CI.hi"]]),
+      ests=c(rep('Unadjusted',nReps), rep('Static',nReps), rep('Small APS', nReps), rep('Large APS', nReps))
+    )
+    
     psi <- mean(UNADJ$psi)
     # Plot
     ggplot(data) +
@@ -183,13 +183,15 @@ for(j in 1:length(expt_type)){
 library(xtable)
 
 # Generate table for latex version 
-YAY$DGP <- c('Sad', rep('', 7),  'Linear', rep('', 7), 'Interactive', rep('', 7), 
+YAY$DGP <- c('Txt only', rep('', 7),  'Linear', rep('', 7), 'Interactive', rep('', 7), 
              'Polynomial', rep('', 7) )
 YAY$Design <- rep( c('Simple', '','','', 'Stratified', '','',''), 4)
 this.order <- c('DGP','Design','ests', 'cover', 'power', 'mse', 'bias', 'var', 're')
 YAY[,this.order]
 
 print(xtable(YAY[,this.order], digits=c(1, 1,1,1, rep(3, 6) )), include.rownames=FALSE)
+
+
 
 #=====================================================
 # Print savings obtained while using APS compared to unadjusted estimator
@@ -207,7 +209,7 @@ round( summary(x[x$ests=='Small APS', 're']), 3)
 round( summary(x[x$ests=='Small APS',  'savings'])*100, 0)
 
 
-if(effect){
+if(effect & n==500){
   #rm(dd)
   dd <- x[,c('expt','stratify', 'ests', 'savings')]
 
@@ -224,17 +226,22 @@ if(effect){
   dd$savings <- as.numeric(dd$savings)
   dd$Stratify2 <- 'Simple'
   dd[dd$Stratify,'Stratify2'] <- 'Stratified'
-  text.size <- 20
-  these.colors <- c('#FFC107', '#1E88E5', '#004D40')
+  text.size <- 16
+  these.colors <- c('#bdd7e7','#3182bd', '#08519c')
   text.color <-'black'
   adder <-  5
   
   this.legend.position <- 'bottom'
-  
+  if(sim_flag){
+    ylab <- 'Estimated Sample Size Savings (%) - Continous Outcome'
+  }else{
+    ylab <- 'Estimated Sample Size Savings (%) - Binary Outcome'
+  }
+
   g <- ggplot(dd, aes(fill=Estimator, y=savings, x=DGP)) + 
     geom_bar(position="dodge", stat="identity") + 
     labs(
-      y = 'Estimated Sample Size Savings (%)',
+      y = ylab,
       x = element_blank() 
     ) +
     scale_fill_manual(values=these.colors) +
@@ -254,8 +261,8 @@ if(effect){
   
   
   g
-  file.name <- paste0('PLOTS/',sim,'savings', '.png')
-  ggsave(file.name)
+  file.name <- paste0('PLOTS/',sim,'savings', '.eps')
+  ggsave(file.name, w=10, h=8)
   
   
 }
@@ -267,3 +274,18 @@ if(effect){
 #=====================================================
 xtable(WINNERQ)
 xtable(WINNERG)
+
+# save(YAY, file=paste0('Summary_', sim, paste0('Effect', effect),
+#                             paste0('N', n),'.Rdata') )
+
+
+# if(effect ){
+#   MAIN <- YAY
+#   # load in the null
+#   load(paste0('Summary_', sim, paste0('Effect', F),
+#                             paste0('N', n),'.Rdata') )
+#   
+#   print(xtable(cbind(MAIN[,this.order], YAY$power), 
+#                      digits=c(1, 1,1,1, rep(2, 7) )), include.rownames=FALSE)
+#   
+# }
