@@ -1,0 +1,4 @@
+load("/Users/laura.balzer/Dropbox/Research/ClusteredTMLEs/BigRCTs/AdaptivePrespec/OUTPUT/_contY_EffectTRUE_N500_V5_marsTRUE_nReps5000_stratifyTRUE_typenoisy_polynomial_r_less_.RData")
+ls()
+OUT
+head(OUT)
