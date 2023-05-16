@@ -43,8 +43,19 @@ sim.cols <- c('bias', 'cover','reject')
 UNADJ <-  data.frame(matrix(NA, nrow=nReps, ncol=length(sim.cols)))
 colnames(UNADJ) <- sim.cols
 SMALL <- BIG <- UNADJ 
-data_input$Y   <- data_input$cd420
-goal <- 'RD'
+
+do.cont <- F # specify if continuous or binary outcome
+
+if(do.cont){
+  data_input$Y   <- data_input$cd420
+  goal <- 'RD'
+  file.name <- 'ACTG_null.Rdata'
+} else{
+  data_input$Y <- as.numeric(data_input$cd420 > 350)
+  goal <- 'aRR'
+  file.name <- 'ACTG_null_bin.Rdata'
+}
+print(file.name)
 dt <- data_input
 
 
@@ -71,7 +82,7 @@ for(r in 1:nReps){
   print(r)
 }
 
-save(UNADJ, SMALL, BIG, file='ACTG_null.Rdata')
+save(UNADJ, SMALL, BIG, file=file.name )
 colMeans(UNADJ, na.rm=T)
 colMeans(SMALL, na.rm=T)
 colMeans(BIG, na.rm=T)

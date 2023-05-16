@@ -4,7 +4,8 @@ make.pretty.mini <- function(pt, lo, hi, scaler, digit, in.percent){
   paste0( round(pt*scaler, digit), ifelse(in.percent,'%',''),
           ' (', #' (95%CI: ',
           round(lo*scaler, digit), '-',
-          round(hi*scaler, digit), ifelse(in.percent,'%',''), ')'
+          round(hi*scaler, digit), #ifelse(in.percent,'%',''), 
+          ')'
   )
 }   
 
@@ -27,7 +28,7 @@ make.pretty.app <- function(est, scaler=1, digit=1, in.percent=F, var.base){
   yay
 }
 
-make.pretty.wrapper <- function(est, var.base, these.rows, scaler=1, digit=1, in.percent=F){
+make.pretty.wrapper <- function(est, var.base, these.rows, scaler=1, digit=0, in.percent=F){
   
   yay <- NULL
   for(k in 1:nrow(est)){
@@ -37,7 +38,6 @@ make.pretty.wrapper <- function(est, var.base, these.rows, scaler=1, digit=1, in
                    )
     
   }
-
   row.names(yay)<- these.rows
   yay
 }

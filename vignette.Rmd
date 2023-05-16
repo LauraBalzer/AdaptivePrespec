@@ -199,11 +199,12 @@ yay.cont <- make.pretty.wrapper(est=cont,
                                 # variance estimate for precision comparison
                                 var.base = (unadj$se^2), 
                                 these.rows=c('Unadjusted','Static', 'Small APS', 
-                                             'Large APS', 'APS outcome only')
-                                )
+                                             'Large APS', 'APS outcome only'),
+                                digit=1)
 
 kable(yay.cont, caption='Comparative results with a **continous outcome** for arm-specific outcomes and intervention effect. 95%CI are shown in parentheses. `Rel.Var.` is the estimated variance of a given approach to that of the unadjusted approach.  `Savings` is the estimated reduction in sample size from using an adjusted approach, assuming negligible bias.')
 ```
+
 
 
 ## Demonstration with a binary outcome
@@ -267,7 +268,7 @@ yay.bin <- make.pretty.wrapper(est=bin,
                                 var.base = (unadj$se^2), 
                                 these.rows=c('Unadjusted','Static', 'Small APS', 
                                              'Large APS', 'APS outcome only'),
-                               scaler=100, in.percent=T
+                               scaler=1, in.percent=F, digit=2
                                 )
 kable(yay.bin, caption='Comparative results with a **binary outcome** for arm-specific outcomes and intervention effect. 95%CI are shown in parentheses. `Rel.Var.` is the estimated variance of a given approach to that of the unadjusted approach.  `Savings` is the estimated reduction in sample size from using an adjusted approach, assuming negligible bias.')
 ```
@@ -284,9 +285,20 @@ nReps <- 5000
 sim.cols <- c('est', 'bias', 'cover','reject')
 UNADJ <-  data.frame(matrix(NA, nrow=nReps, ncol=length(sim.cols)))
 colnames(UNADJ) <- sim.cols
-SMALL <- BIG <- UNADJ 
-data_input$Y   <- data_input$cd420
-goal <- 'RD'
+SMALL <- BIG <- UNADJ
+
+do.cont <- F # specify if continuous or binary outcome
+
+if(do.cont){
+  data_input$Y   <- data_input$cd420
+  goal <- 'RD'
+  file.name <- 'ACTG_null.Rdata'
+} else{
+  data_input$Y <- as.numeric(data_input$cd420 > 350)
+  goal <- 'aRR'
+  file.name <- 'ACTG_null_bin.Rdata'
+}
+
 dt <- data_input
 for(r in 1:nReps){
   # randomly permute the treatment
@@ -311,7 +323,7 @@ for(r in 1:nReps){
   print(r)
 }
 
-save(UNADJ, SMALL, BIG, file='ACTG_null.Rdata')
+save(UNADJ, SMALL, BIG, file=file.name)
 
 ```
 
@@ -320,4 +332,14 @@ load('ACTG_null.Rdata')
 round(colMeans(UNADJ, na.rm=T), 2)
 round(colMeans(SMALL, na.rm=T), 2)
 round(colMeans(BIG, na.rm=T), 2)
+```
+
+
+```{r, echo=F}
+library('xtable')
+x <- rbind(yay.cont, yay.bin)
+x <- cbind( y=c('Continuous',rep('',4), 'Binary',rep('',4)),
+            est=rownames(x), x)
+x <- subset(x, select=-c(Intervention, Control))
+print( xtable(x),  include.rownames=FALSE)
 ```
