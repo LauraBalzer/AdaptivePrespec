@@ -315,10 +315,9 @@ save(UNADJ, SMALL, BIG, file='ACTG_null.Rdata')
 
 ```
 
-**THIS IS STILL RUNNING FOR 5000 ITERATIONS**
 ```{r}
 load('ACTG_null.Rdata')
-round(colMeans(UNADJ, na.rm=T), 3)
-round(colMeans(SMALL, na.rm=T), 3)
-round(colMeans(BIG, na.rm=T), 3)
+round(colMeans(UNADJ, na.rm=T), 2)
+round(colMeans(SMALL, na.rm=T), 2)
+round(colMeans(BIG, na.rm=T), 2)
 ```
