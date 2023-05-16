@@ -19,10 +19,11 @@ make.pretty.app <- function(est, scaler=1, digit=1, in.percent=F, var.base){
      make.pretty.mini(est$est, est$CI.lo, est$CI.hi, 
                       scaler=1, digit=ifelse(in.percent, (digit+1), digit), in.percent=F),
     #ifelse (est$pval<0.001, '<0.001', round(est$pval, 3))
-    round( var.base/(est$se^2), 2)
+    round( (est$se^2)/var.base, 2),
+    paste0( round(( 1- (est$se^2)/var.base)*100, 0), '%')
   )
   )
-  colnames(yay) <- c('Intervention', 'Control', 'Effect', 'Precision')
+  colnames(yay) <- c('Intervention', 'Control', 'Effect', 'Rel.Var.', 'Savings')
   yay
 }
 

@@ -202,7 +202,7 @@ yay.cont <- make.pretty.wrapper(est=cont,
                                              'Large APS', 'APS outcome only')
                                 )
 
-kable(yay.cont, caption='Comparative results with a **continous outcome**; 95%CI shown in (); precision is the variance estimate for unadjusted approach divided by the variance of another approach')
+kable(yay.cont, caption='Comparative results with a **continous outcome** for arm-specific outcomes and intervention effect. 95%CI are shown in parentheses. `Rel.Var.` is the estimated variance of a given approach to that of the unadjusted approach.  `Savings` is the estimated reduction in sample size from using an adjusted approach, assuming negligible bias.')
 ```
 
 
@@ -269,7 +269,7 @@ yay.bin <- make.pretty.wrapper(est=bin,
                                              'Large APS', 'APS outcome only'),
                                scaler=100, in.percent=T
                                 )
-kable(yay.bin, caption='Comparative results with a **binary outcome**; 95%CI shown in (); precision is the variance estimate for unadjusted approach divided by the variance of another approach')
+kable(yay.bin, caption='Comparative results with a **binary outcome** for arm-specific outcomes and intervention effect. 95%CI are shown in parentheses. `Rel.Var.` is the estimated variance of a given approach to that of the unadjusted approach.  `Savings` is the estimated reduction in sample size from using an adjusted approach, assuming negligible bias.')
 ```
 
 
@@ -315,6 +315,7 @@ save(UNADJ, SMALL, BIG, file='ACTG_null.Rdata')
 
 ```
 
+**THIS IS STILL RUNNING FOR 5000 ITERATIONS**
 ```{r}
 load('ACTG_null.Rdata')
 round(colMeans(UNADJ, na.rm=T), 3)
