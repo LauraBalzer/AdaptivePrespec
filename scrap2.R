@@ -35,54 +35,55 @@ small_aps <- get.cand.adj(all.cand = all_cand, cand.Qform.fancy = NULL, cand.gfo
 large_aps  <- get.cand.adj(all.cand = all_cand, 
                            cand.Qform.fancy = c("glm", "stepwise", "lasso", "mars", "mars.corP"), 
                            cand.gform.fancy = c("glm", "stepwise", "lasso", "mars", "mars.corP"))
-
 set.seed(1)
 
 nReps <- 5000
-sim.cols <- c('bias', 'cover','reject')
+sim.cols <- c('est', 'bias', 'cover','reject')
 UNADJ <-  data.frame(matrix(NA, nrow=nReps, ncol=length(sim.cols)))
 colnames(UNADJ) <- sim.cols
-SMALL <- BIG <- UNADJ 
+FIXED <- SMALL <- BIG <- UNADJ
 
-do.cont <- F # specify if continuous or binary outcome
+do.cont <- T # specify if continuous or binary outcome
 
 if(do.cont){
   data_input$Y   <- data_input$cd420
   goal <- 'RD'
-  file.name <- 'ACTG_null.Rdata'
+  psi <- 0 
+  file.name <- 'ACTG_null_cont_5000.Rdata'
 } else{
   data_input$Y <- as.numeric(data_input$cd420 > 350)
+  psi <- 1
   goal <- 'aRR'
-  file.name <- 'ACTG_null_bin.Rdata'
+  file.name <- 'ACTG_null_bin_5000.Rdata'
 }
-print(file.name)
+
 dt <- data_input
-
-
 for(r in 1:nReps){
   # randomly permute the treatment
   dt$A <- sample(dt$A)
   # implement 3 estimators 
-  unadj <- suppressWarnings( Stage2(goal = goal, data.input = dt, do.data.adapt =F, psi=0))
+  unadj <- suppressWarnings( Stage2(goal = goal, data.input = dt, do.data.adapt =F, psi=psi))
+  fixed <- suppressWarnings( Stage2(goal = goal, data.input = dt, 
+                                    do.data.adapt = F, 
+                                    QAdj='age', Qform='glm', 
+                                    gAdj='gender', gform='glm',  psi=psi))
   small_tmle <- suppressWarnings( Stage2(goal = goal, data.input = dt, 
                                          do.data.adapt = TRUE, V = 5, 
                                          cand.QAdj =  small_aps$cand.QAdj, cand.Qform = small_aps$cand.Qform,
                                          cand.gAdj =  small_aps$cand.gAdj, cand.gform = small_aps$cand.gform,
-                                         psi=0) )
+                                         psi=psi))
   
   large_tmle <- suppressWarnings( Stage2(goal = goal, data.input = dt, 
                                          do.data.adapt = TRUE, V = 5, 
                                          cand.QAdj =  large_aps$cand.QAdj, cand.Qform = large_aps$cand.Qform,
                                          cand.gAdj =  large_aps$cand.gAdj, cand.gform = large_aps$cand.gform,
-                                         psi=0) )
+                                         psi=psi))
   # save the output
   UNADJ[r,] <- unadj[,sim.cols]
+  FIXED[r,] <- fixed[,sim.cols]
   SMALL[r,] <- small_tmle[,sim.cols]
   BIG[r, ]  <- large_tmle[,sim.cols]
   print(r)
 }
 
-save(UNADJ, SMALL, BIG, file=file.name )
-colMeans(UNADJ, na.rm=T)
-colMeans(SMALL, na.rm=T)
-colMeans(BIG, na.rm=T)
+save(UNADJ, FIXED, SMALL, BIG, file=file.name)
