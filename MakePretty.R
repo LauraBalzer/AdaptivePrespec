@@ -11,17 +11,26 @@ library(hrbrthemes)
 #####################################################################
 # Inputs to the file 
 # 1. n: Sample size 
-n <- 500
+n <- 100
 # 2. Number of replications 
 nReps <- 5000
-# 3. Number of folds in cross validation, V = 10 when n = 40, 100 and V = 5 otherwise
-V <- ifelse(n==40,10,5)
+# 3. Number of folds in cross validation, 
+if(n==500){
+  V<- 5
+  folder <- 'OUTPUT/'
+} else if(n==100){
+  V <- 5
+  folder <- 'OUTPUT_other/'
+} else if(n==40){
+  V=20
+  folder <- 'OUTPUT_other/'
+}
 # 4. Specify whether MARS was included as a candidate
 incl.mars <- T
 # 5. Verbose setting describes in detail the outputs produced 
 verbose <- F
 # 6. Flag for continuous outcome 
-sim_flag <- F
+sim_flag <- T
 if(sim_flag == TRUE){
   sim <- "contY"
 } else {
@@ -123,7 +132,7 @@ for(j in 1:length(expt_type)){
                       paste0('nReps', nReps),paste0('stratify', STRATIFY[k]),
                       paste0('type', expt_type[j]), sep = "_")
   
-  file.nameD <- paste( "OUTPUT/", file.name, paste('.RData'), sep = "_")
+  file.nameD <- paste( folder, file.name, paste('.RData'), sep = "_")
   print(paste0("Experiment file name is: ", file.nameD))
   load(file.nameD)
   

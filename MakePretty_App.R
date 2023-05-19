@@ -1,10 +1,12 @@
 # Helper function to make the output from the real data analysis look pretty
 
 make.pretty.mini <- function(pt, lo, hi, scaler, digit, in.percent){
-  paste0( round(pt*scaler, digit), ifelse(in.percent,'%',''),
+  this <- paste0("%.",digit,"f")
+  
+  paste0( sprintf(this, pt*scaler), ifelse(in.percent,'%',''),
           ' (', #' (95%CI: ',
-          round(lo*scaler, digit), '-',
-          round(hi*scaler, digit), #ifelse(in.percent,'%',''), 
+          sprintf(this, lo*scaler), '-',
+          sprintf(this, hi*scaler), #ifelse(in.percent,'%',''), 
           ')'
   )
 }   
@@ -20,7 +22,7 @@ make.pretty.app <- function(est, scaler=1, digit=1, in.percent=F, var.base){
      make.pretty.mini(est$est, est$CI.lo, est$CI.hi, 
                       scaler=1, digit=ifelse(in.percent, (digit+1), digit), in.percent=F),
     #ifelse (est$pval<0.001, '<0.001', round(est$pval, 3))
-    round( (est$se^2)/var.base, 2),
+    sprintf("%.2f", (est$se^2)/var.base ),
     paste0( round(( 1- (est$se^2)/var.base)*100, 0), '%')
   )
   )

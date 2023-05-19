@@ -12,7 +12,7 @@
 
 <meta name="author" content="Laura B. Balzer (laura.balzer@berkeley.edu)" />
 
-<meta name="date" content="2023-05-16" />
+<meta name="date" content="2023-05-19" />
 
 <title>Adaptive Prespecification - Vignette</title>
 
@@ -340,7 +340,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Adaptive Prespecification - Vignette</h1>
 <h4 class="author">Laura B. Balzer (<a href="mailto:laura.balzer@berkeley.edu" class="email">laura.balzer@berkeley.edu</a>)</h4>
-<h4 class="date">2023-05-16</h4>
+<h4 class="date">2023-05-19</h4>
 
 
 
@@ -356,14 +356,14 @@ cross-validated variance estimate.</p>
 <p>Key methods references include</p>
 <ul>
 <li>Balzer et al., <a href="https://pubmed.ncbi.nlm.nih.gov/27436797/">Adaptive
-pre-specification in randomized trials with and without
-pair-matching,</a> <em>Statistics in Medicine</em>, 2016</li>
-<li>Balzer et al., <a href="https://pubmed.ncbi.nlm.nih.gov/34939083/">Two-Stage TMLE to
-reduce bias and improve efficiency in cluster randomized trials,</a>
+pre-specification</a> in randomized trials with and without
+pair-matching, <em>Statistics in Medicine</em>, 2016</li>
+<li>Balzer et al., <a href="https://pubmed.ncbi.nlm.nih.gov/34939083/">Two-Stage TMLE</a> to
+reduce bias and improve efficiency in cluster randomized trials,
 <em>Biostatistics</em>, 2021</li>
 <li>Balzer et al., <a href="https://arxiv.org/abs/2210.17453">Adaptive
-Selection of the Optimal Strategy to Improve Precision and Power in
-Randomized Trials,</a> <em>arXiv</em>, 2022</li>
+Selection</a> of the Optimal Strategy to Improve Precision and Power in
+Randomized Trials, <em>arXiv</em>, 2022</li>
 </ul>
 <p>Example applications include</p>
 <ul>
@@ -631,8 +631,8 @@ MARS.</p>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>                                <span class="co"># variance estimate for precision comparison</span></span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>                                <span class="at">var.base =</span> (unadj<span class="sc">$</span>se<span class="sc">^</span><span class="dv">2</span>), </span>
 <span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>                                <span class="at">these.rows=</span><span class="fu">c</span>(<span class="st">&#39;Unadjusted&#39;</span>,<span class="st">&#39;Static&#39;</span>, <span class="st">&#39;Small APS&#39;</span>, </span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>                                             <span class="st">&#39;Large APS&#39;</span>, <span class="st">&#39;APS outcome only&#39;</span>)</span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>                                )</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>                                             <span class="st">&#39;Large APS&#39;</span>, <span class="st">&#39;APS outcome only&#39;</span>),</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>                                <span class="at">digit=</span><span class="dv">1</span>)</span>
 <span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(yay.cont, <span class="at">caption=</span><span class="st">&#39;Comparative results with a **continous outcome** for arm-specific outcomes and intervention effect. 95%CI are shown in parentheses. `Rel.Var.` is the estimated variance of a given approach to that of the unadjusted approach.  `Savings` is the estimated reduction in sample size from using an adjusted approach, assuming negligible bias.&#39;</span>)</span></code></pre></div>
 <table>
@@ -781,7 +781,7 @@ scale (i.e., arithmetic risk ratio).</p>
 <span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>                                <span class="at">var.base =</span> (unadj<span class="sc">$</span>se<span class="sc">^</span><span class="dv">2</span>), </span>
 <span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>                                <span class="at">these.rows=</span><span class="fu">c</span>(<span class="st">&#39;Unadjusted&#39;</span>,<span class="st">&#39;Static&#39;</span>, <span class="st">&#39;Small APS&#39;</span>, </span>
 <span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>                                             <span class="st">&#39;Large APS&#39;</span>, <span class="st">&#39;APS outcome only&#39;</span>),</span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>                               <span class="at">scaler=</span><span class="dv">100</span>, <span class="at">in.percent=</span>T</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>                               <span class="at">scaler=</span><span class="dv">1</span>, <span class="at">in.percent=</span>F, <span class="at">digit=</span><span class="dv">2</span></span>
 <span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>                                )</span>
 <span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(yay.bin, <span class="at">caption=</span><span class="st">&#39;Comparative results with a **binary outcome** for arm-specific outcomes and intervention effect. 95%CI are shown in parentheses. `Rel.Var.` is the estimated variance of a given approach to that of the unadjusted approach.  `Savings` is the estimated reduction in sample size from using an adjusted approach, assuming negligible bias.&#39;</span>)</span></code></pre></div>
 <table>
@@ -792,12 +792,12 @@ approach to that of the unadjusted approach. <code>Savings</code> is the
 estimated reduction in sample size from using an adjusted approach,
 assuming negligible bias.</caption>
 <colgroup>
-<col width="19%" />
-<col width="21%" />
-<col width="21%" />
-<col width="19%" />
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
 <col width="10%" />
-<col width="8%" />
+<col width="9%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -812,40 +812,40 @@ assuming negligible bias.</caption>
 <tbody>
 <tr class="odd">
 <td align="left">Unadjusted</td>
-<td align="left">53.3% (50.9-55.8%)</td>
-<td align="left">43.3% (39.1-47.6%)</td>
+<td align="left">0.53 (0.51-0.56)</td>
+<td align="left">0.43 (0.39-0.48)</td>
 <td align="left">1.23 (1.1-1.37)</td>
 <td align="left">1</td>
 <td align="left">0%</td>
 </tr>
 <tr class="even">
 <td align="left">Static</td>
-<td align="left">53.3% (50.9-55.8%)</td>
-<td align="left">43.3% (39.1-47.5%)</td>
+<td align="left">0.53 (0.51-0.56)</td>
+<td align="left">0.43 (0.39-0.48)</td>
 <td align="left">1.23 (1.11-1.37)</td>
 <td align="left">1</td>
 <td align="left">0%</td>
 </tr>
 <tr class="odd">
 <td align="left">Small APS</td>
-<td align="left">53.6% (51.5-55.7%)</td>
-<td align="left">42.6% (39.1-46.1%)</td>
+<td align="left">0.54 (0.52-0.56)</td>
+<td align="left">0.43 (0.39-0.46)</td>
 <td align="left">1.26 (1.15-1.38)</td>
 <td align="left">0.7</td>
 <td align="left">30%</td>
 </tr>
 <tr class="even">
 <td align="left">Large APS</td>
-<td align="left">53.5% (51.5-55.5%)</td>
-<td align="left">42.6% (39.2-46.1%)</td>
+<td align="left">0.54 (0.52-0.56)</td>
+<td align="left">0.43 (0.39-0.46)</td>
 <td align="left">1.26 (1.15-1.37)</td>
 <td align="left">0.67</td>
 <td align="left">33%</td>
 </tr>
 <tr class="odd">
 <td align="left">APS outcome only</td>
-<td align="left">53.5% (51.5-55.6%)</td>
-<td align="left">42.7% (39.2-46.1%)</td>
+<td align="left">0.54 (0.52-0.56)</td>
+<td align="left">0.43 (0.39-0.46)</td>
 <td align="left">1.25 (1.15-1.37)</td>
 <td align="left">0.68</td>
 <td align="left">32%</td>
@@ -866,44 +866,94 @@ implement each of the estimators and repeat 5000 times.</p>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>sim.cols <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&#39;est&#39;</span>, <span class="st">&#39;bias&#39;</span>, <span class="st">&#39;cover&#39;</span>,<span class="st">&#39;reject&#39;</span>)</span>
 <span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>UNADJ <span class="ot">&lt;-</span>  <span class="fu">data.frame</span>(<span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="at">nrow=</span>nReps, <span class="at">ncol=</span><span class="fu">length</span>(sim.cols)))</span>
 <span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(UNADJ) <span class="ot">&lt;-</span> sim.cols</span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>SMALL <span class="ot">&lt;-</span> BIG <span class="ot">&lt;-</span> UNADJ </span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>data_input<span class="sc">$</span>Y   <span class="ot">&lt;-</span> data_input<span class="sc">$</span>cd420</span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>goal <span class="ot">&lt;-</span> <span class="st">&#39;RD&#39;</span></span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>dt <span class="ot">&lt;-</span> data_input</span>
-<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(r <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>nReps){</span>
-<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># randomly permute the treatment</span></span>
-<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>  dt<span class="sc">$</span>A <span class="ot">&lt;-</span> <span class="fu">sample</span>(dt<span class="sc">$</span>A)</span>
-<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># implement 3 estimators </span></span>
-<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>  unadj <span class="ot">&lt;-</span> <span class="fu">suppressWarnings</span>( <span class="fu">Stage2</span>(<span class="at">goal =</span> goal, <span class="at">data.input =</span> dt, <span class="at">do.data.adapt =</span>F, <span class="at">psi=</span><span class="dv">0</span>))</span>
-<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>  small_tmle <span class="ot">&lt;-</span> <span class="fu">suppressWarnings</span>( <span class="fu">Stage2</span>(<span class="at">goal =</span> goal, <span class="at">data.input =</span> dt, </span>
-<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>                       <span class="at">do.data.adapt =</span> <span class="cn">TRUE</span>, <span class="at">V =</span> <span class="dv">5</span>, </span>
-<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>                       <span class="at">cand.QAdj =</span>  small_aps<span class="sc">$</span>cand.QAdj, <span class="at">cand.Qform =</span> small_aps<span class="sc">$</span>cand.Qform,</span>
-<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>                       <span class="at">cand.gAdj =</span>  small_aps<span class="sc">$</span>cand.gAdj, <span class="at">cand.gform =</span> small_aps<span class="sc">$</span>cand.gform,</span>
-<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>                       <span class="at">psi=</span><span class="dv">0</span>) )</span>
-<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>  large_tmle <span class="ot">&lt;-</span> <span class="fu">suppressWarnings</span>( <span class="fu">Stage2</span>(<span class="at">goal =</span> goal, <span class="at">data.input =</span> dt, </span>
-<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>                       <span class="at">do.data.adapt =</span> <span class="cn">TRUE</span>, <span class="at">V =</span> <span class="dv">5</span>, </span>
-<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>                       <span class="at">cand.QAdj =</span>  large_aps<span class="sc">$</span>cand.QAdj, <span class="at">cand.Qform =</span> large_aps<span class="sc">$</span>cand.Qform,</span>
-<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>                       <span class="at">cand.gAdj =</span>  large_aps<span class="sc">$</span>cand.gAdj, <span class="at">cand.gform =</span> large_aps<span class="sc">$</span>cand.gform,</span>
-<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>                       <span class="at">psi=</span><span class="dv">0</span>) )</span>
-<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>  <span class="co"># save the output</span></span>
-<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>  UNADJ[r,] <span class="ot">&lt;-</span> unadj[,sim.cols]</span>
-<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>  SMALL[r,] <span class="ot">&lt;-</span> small_tmle[,sim.cols]</span>
-<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a>  BIG[r, ]  <span class="ot">&lt;-</span> large_tmle[,sim.cols]</span>
-<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(r)</span>
-<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(UNADJ, SMALL, BIG, <span class="at">file=</span><span class="st">&#39;ACTG_null.Rdata&#39;</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">&#39;ACTG_null.Rdata&#39;</span>)</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">colMeans</span>(UNADJ, <span class="at">na.rm=</span>T), <span class="dv">2</span>)</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   bias  cover reject </span></span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  -0.04   0.95   0.05</span></span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">colMeans</span>(SMALL, <span class="at">na.rm=</span>T), <span class="dv">2</span>)</span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   bias  cover reject </span></span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   0.16   0.95   0.05</span></span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">colMeans</span>(BIG, <span class="at">na.rm=</span>T), <span class="dv">2</span>)</span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   bias  cover reject </span></span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   0.11   0.95   0.05</span></span></code></pre></div>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>FIXED <span class="ot">&lt;-</span> SMALL <span class="ot">&lt;-</span> BIG <span class="ot">&lt;-</span> UNADJ</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>do.cont <span class="ot">&lt;-</span> T <span class="co"># specify if continuous or binary outcome</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(do.cont){</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>  data_input<span class="sc">$</span>Y   <span class="ot">&lt;-</span> data_input<span class="sc">$</span>cd420</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>  goal <span class="ot">&lt;-</span> <span class="st">&#39;RD&#39;</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>  psi <span class="ot">&lt;-</span> <span class="dv">0</span> </span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>  file.name <span class="ot">&lt;-</span> <span class="st">&#39;ACTG_null_cont_5000.Rdata&#39;</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span>{</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>  data_input<span class="sc">$</span>Y <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(data_input<span class="sc">$</span>cd420 <span class="sc">&gt;</span> <span class="dv">350</span>)</span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>  psi <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>  goal <span class="ot">&lt;-</span> <span class="st">&#39;aRR&#39;</span></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>  file.name <span class="ot">&lt;-</span> <span class="st">&#39;ACTG_null_bin_5000.Rdata&#39;</span></span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>dt <span class="ot">&lt;-</span> data_input</span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(r <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>nReps){</span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># randomly permute the treatment</span></span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>  dt<span class="sc">$</span>A <span class="ot">&lt;-</span> <span class="fu">sample</span>(dt<span class="sc">$</span>A)</span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>  <span class="co"># implement 3 estimators </span></span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>  unadj <span class="ot">&lt;-</span> <span class="fu">suppressWarnings</span>( <span class="fu">Stage2</span>(<span class="at">goal =</span> goal, <span class="at">data.input =</span> dt, <span class="at">do.data.adapt =</span>F, <span class="at">psi=</span>psi))</span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>  fixed <span class="ot">&lt;-</span> <span class="fu">suppressWarnings</span>( <span class="fu">Stage2</span>(<span class="at">goal =</span> goal, <span class="at">data.input =</span> dt, </span>
+<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">do.data.adapt =</span> F, </span>
+<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">QAdj=</span><span class="st">&#39;age&#39;</span>, <span class="at">Qform=</span><span class="st">&#39;glm&#39;</span>, </span>
+<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">gAdj=</span><span class="st">&#39;gender&#39;</span>, <span class="at">gform=</span><span class="st">&#39;glm&#39;</span>,  <span class="at">psi=</span>psi))</span>
+<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a>  small_tmle <span class="ot">&lt;-</span> <span class="fu">suppressWarnings</span>( <span class="fu">Stage2</span>(<span class="at">goal =</span> goal, <span class="at">data.input =</span> dt, </span>
+<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">do.data.adapt =</span> <span class="cn">TRUE</span>, <span class="at">V =</span> <span class="dv">5</span>, </span>
+<span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">cand.QAdj =</span>  small_aps<span class="sc">$</span>cand.QAdj, <span class="at">cand.Qform =</span> small_aps<span class="sc">$</span>cand.Qform,</span>
+<span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">cand.gAdj =</span>  small_aps<span class="sc">$</span>cand.gAdj, <span class="at">cand.gform =</span> small_aps<span class="sc">$</span>cand.gform,</span>
+<span id="cb18-37"><a href="#cb18-37" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">psi=</span>psi))</span>
+<span id="cb18-38"><a href="#cb18-38" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb18-39"><a href="#cb18-39" aria-hidden="true" tabindex="-1"></a>  large_tmle <span class="ot">&lt;-</span> <span class="fu">suppressWarnings</span>( <span class="fu">Stage2</span>(<span class="at">goal =</span> goal, <span class="at">data.input =</span> dt, </span>
+<span id="cb18-40"><a href="#cb18-40" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">do.data.adapt =</span> <span class="cn">TRUE</span>, <span class="at">V =</span> <span class="dv">5</span>, </span>
+<span id="cb18-41"><a href="#cb18-41" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">cand.QAdj =</span>  large_aps<span class="sc">$</span>cand.QAdj, <span class="at">cand.Qform =</span> large_aps<span class="sc">$</span>cand.Qform,</span>
+<span id="cb18-42"><a href="#cb18-42" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">cand.gAdj =</span>  large_aps<span class="sc">$</span>cand.gAdj, <span class="at">cand.gform =</span> large_aps<span class="sc">$</span>cand.gform,</span>
+<span id="cb18-43"><a href="#cb18-43" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">psi=</span>psi))</span>
+<span id="cb18-44"><a href="#cb18-44" aria-hidden="true" tabindex="-1"></a>  <span class="co"># save the output</span></span>
+<span id="cb18-45"><a href="#cb18-45" aria-hidden="true" tabindex="-1"></a>  UNADJ[r,] <span class="ot">&lt;-</span> unadj[,sim.cols]</span>
+<span id="cb18-46"><a href="#cb18-46" aria-hidden="true" tabindex="-1"></a>  FIXED[r,] <span class="ot">&lt;-</span> fixed[,sim.cols]</span>
+<span id="cb18-47"><a href="#cb18-47" aria-hidden="true" tabindex="-1"></a>  SMALL[r,] <span class="ot">&lt;-</span> small_tmle[,sim.cols]</span>
+<span id="cb18-48"><a href="#cb18-48" aria-hidden="true" tabindex="-1"></a>  BIG[r, ]  <span class="ot">&lt;-</span> large_tmle[,sim.cols]</span>
+<span id="cb18-49"><a href="#cb18-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(r)</span>
+<span id="cb18-50"><a href="#cb18-50" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb18-51"><a href="#cb18-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-52"><a href="#cb18-52" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(UNADJ, FIXED, SMALL, BIG, <span class="at">file=</span>file.name)</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">&#39;ACTG_null_cont_5000.Rdata&#39;</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>FIXED <span class="ot">&lt;-</span> UNADJ</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>t1c <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">colMeans</span>(UNADJ), <span class="fu">colMeans</span>(FIXED), <span class="fu">colMeans</span>(SMALL), <span class="fu">colMeans</span>(BIG) )</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(t1c,<span class="dv">3</span>)</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         est   bias cover reject</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] -0.040 -0.040 0.952  0.048</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [2,] -0.040 -0.040 0.952  0.048</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [3,]  0.156  0.156 0.948  0.052</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [4,]  0.105  0.105 0.947  0.053</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">&#39;ACTG_null_bin_5000.Rdata&#39;</span>)</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>t1b <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">colMeans</span>(UNADJ), <span class="fu">colMeans</span>(FIXED), <span class="fu">colMeans</span>(SMALL), <span class="fu">colMeans</span>(BIG) )</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(t1b,<span class="dv">3</span>)</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;        est  bias cover reject</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] 1.002 0.002 0.953  0.047</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [2,] 1.002 0.002 0.955  0.045</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [3,] 1.000 0.000 0.948  0.052</span></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [4,] 1.000 0.000 0.948  0.052</span></span></code></pre></div>
+<pre><code>#&gt; 
+#&gt; Attaching package: &#39;xtable&#39;
+#&gt; The following object is masked from &#39;package:TeachingDemos&#39;:
+#&gt; 
+#&gt;     digits
+#&gt; % latex table generated in R 4.2.3 by xtable 1.8-4 package
+#&gt; % Fri May 19 07:02:23 2023
+#&gt; \begin{table}[ht]
+#&gt; \centering
+#&gt; \begin{tabular}{llllll}
+#&gt;   \hline
+#&gt; y &amp; est &amp; Effect &amp; Rel.Var. &amp; Savings &amp; t1 \\ 
+#&gt;   \hline
+#&gt; Continuous &amp; Unadjusted &amp; 46.4 (33-59.7) &amp; 1 &amp; 0\% &amp; 5\% \\ 
+#&gt;    &amp; Static &amp; 46.8 (33.5-60) &amp; 0.99 &amp; 1\% &amp; 5\% \\ 
+#&gt;    &amp; Small APS &amp; 48.5 (38-59) &amp; 0.62 &amp; 38\% &amp; 5\% \\ 
+#&gt;    &amp; Large APS &amp; 47.8 (38-57.6) &amp; 0.54 &amp; 46\% &amp; 5\% \\ 
+#&gt;   Binary &amp; Unadjusted &amp; 1.23 (1.1-1.37) &amp; 1 &amp; 0\% &amp; 5\% \\ 
+#&gt;    &amp; Static &amp; 1.23 (1.11-1.37) &amp; 1 &amp; 0\% &amp; 5\% \\ 
+#&gt;    &amp; Small APS &amp; 1.26 (1.15-1.38) &amp; 0.7 &amp; 30\% &amp; 5\% \\ 
+#&gt;    &amp; Large APS &amp; 1.26 (1.15-1.37) &amp; 0.67 &amp; 33\% &amp; 5\% \\ 
+#&gt;    \hline
+#&gt; \end{tabular}
+#&gt; \end{table}</code></pre>
 </div>
 
 
