@@ -11,7 +11,7 @@ library(hrbrthemes)
 #####################################################################
 # Inputs to the file 
 # 1. n: Sample size 
-n <- 100
+n <- 40
 # 2. Number of replications 
 nReps <- 5000
 # 3. Number of folds in cross validation, 

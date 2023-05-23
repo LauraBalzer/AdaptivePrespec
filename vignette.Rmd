@@ -51,7 +51,7 @@ data_input$recent <- as.numeric(data_input$strat==2)
 
 ## Load in APS functions, relevant libraries, and specify key variables
 
-```{r}
+```{r, message=F}
 # https://github.com/LauraBalzer/AdaptivePrespec/
 source("Stage2_Functions_Meta.R")
 source("TMLE_Functions_Meta.R")
@@ -74,7 +74,7 @@ data_input$A   <- data_input$treat
 
 ## Prespecifing candidate adjustment variables and candidate estimators
 
-As candidate adjustment variables, we consider demographic variables (e.g., `age`, `gender`), measures of disease severity (e.g., `karnof`, `symptom`), history of ART use, and baseline measures of CD4 and CD8 counts. We refer to the help file (`help(ACTG175)`) for more information
+As candidate adjustment variables, we consider demographic variables (e.g., age, gender),  measures of disease severity (e.g., Karnofsky score, being symptomatic), history of ART use, and baseline measures of CD4 and CD8 counts. We refer to the help file (`help(ACTG175)`) for more information
 
 ```{r}
 all_cand <- c("age", "young", "wtkg", "hemo",
@@ -83,6 +83,43 @@ all_cand <- c("age", "young", "wtkg", "hemo",
               "str2", "recent",  "symptom",
               "cd40", "cd40bin", "cd80", "cd80bin")
 ```
+
+```{r, echo=F, include=F, results='hide'}
+source('../../Meta/PhaseA_Functions_Shared.R')
+
+these.summaries <- data.frame(rbind(
+
+  c('Age (years)','age',  NA),
+  c('Aged 18-30 years', 'young', 1),
+  c('Male', 'gender', 1), 
+  c('Non-white race', 'race', 1), 
+  c('Weight (kg)', 'wtkg', NA), 
+  c('Has hemophilia', 'hemo', 1), 
+  c('Karnofsky score (scale 0-100)', 'karnof', NA), 
+  c('Symptomatic', 'symptom', 1), 
+  c('ART experienced', 'str2', 1), 
+    c('Time on ART (days)', 'preanti', NA), 
+  c('Recently started ART (1-52wks prior)', 'recent', 1), 
+   c('Non-zidovudine prior to baseline', 'oprior', 1), 
+  
+  c('Baseline CD4 count (cells/mm$^3$)', 'cd40', NA), 
+   c('Baseline CD4>350', 'cd40bin', 1), 
+  c('Baseline CD8 count (cells/mm$^3$)', 'cd80', NA), 
+   c('Baseline CD48>350', 'cd80bin', 1)
+))
+
+colnames(these.summaries) <- c('pretty','var', 'value')
+
+table1 <- get.table1.wrapper (data_input, these.summaries, by.arm=T, do.num.den = F)
+colnames(table1) <- c('Intervention', 'Control', 'Overall')
+library(xtable)
+xtable(table1)
+```
+
+```{r, echo=F}
+kable(table1, caption='Baseline characteristics of adult (age 18+ years) participants in the ACTG 175 Study (https://pubmed.ncbi.nlm.nih.gov/8813038/)')
+```
+
 
 We consider two implementations of APS: 
 
@@ -160,13 +197,27 @@ small_aps$cand.QAdj[small_tmle$QAdj]
 small_aps$cand.gAdj[small_tmle$gAdj]
 ```
 
-The outcome at baseline `cd40` was selected for adjustment in both the outcome regression and propensity score.
+The outcome at baseline `cd40` was selected for adjustment in both the outcome regression and propensity score. Let's examine the added benefit of additional adjustment in the propensity score by setting `gAdj=NULL` and `gform=glm`. This will generate a TMLE only adjusting in the outcome regression. For demonstration, we will use the same approach for estimating the outcome regression as was selected previously.
+
+```{r, warning=F}
+small_tmle_Qonly <- Stage2(goal = goal, data.input = data_input, 
+                    # do.data.adapt = F, V = 5, 
+                    QAdj= unlist(small_aps$cand.QAdj[small_tmle$QAdj]), 
+                    Qform=small_tmle$Qform,
+                    gAdj=NULL, gform='glm')
+# Note: we could alternatively hardcode this by setting
+#         QAdj= 'cd40', Qform='glm', 
+
+small_tmle_Qonly
+```
+
 
 ### Large sample APS in TMLE
 
 We now consider the large sample implementation of APS in TMLE.
 
 ```{r, warning=F}
+set.seed(1) #reset the seed bc its an adaptive algorithm
 large_tmle <- Stage2(goal = goal, data.input = data_input, 
                     do.data.adapt = TRUE, V = 5, 
                     cand.QAdj =  large_aps$cand.QAdj, cand.Qform = large_aps$cand.Qform,
@@ -178,12 +229,14 @@ large_aps$cand.QAdj[large_tmle$QAdj]
 large_aps$cand.gAdj[large_tmle$gAdj]
 ```
 
-In the large sample implementation, the outcome regression was estimated with MARS, and, as before, the propensity score was estimated with working GLM adjusting for `cd40`. Let's examine the added benefit of adaptive adjustment in the propensity score by setting `gAdj=NULL` and `gform=glm`. This will generate a TMLE only adjusting in the outcome regression, which will estimate with MARS.
+In the large sample implementation, the outcome regression was estimated with MARS, and, as before, the propensity score was estimated with working GLM adjusting for `cd40`. Let's examine the added benefit of adaptive adjustment in the propensity score by setting `gAdj=NULL` and `gform=glm`. This will generate a TMLE only adjusting in the outcome regression, which was previously selected through our adaptive approach.
+
 
 ```{r, warning=F}
 large_tmle_Qonly <- Stage2(goal = goal, data.input = data_input, 
                     # do.data.adapt = F, V = 5, 
-                    QAdj= all_cand, Qform='mars', 
+                    QAdj= unlist(large_aps$cand.QAdj[large_tmle$QAdj]), 
+                    Qform=large_tmle$Qform, 
                     gAdj=NULL, gform='glm')
 large_tmle_Qonly
 ```
@@ -192,87 +245,108 @@ large_tmle_Qonly
 ### Compact comparison of results
 
 
+Comparative results with a **continous outcome** for arm-specific outcomes and intervention effect. 
+- `Rel.Var.` is the estimated variance of a given approach to that of the unadjusted approach.  
+- `Savings` is the estimated reduction in sample size from using an adjusted approach, assuming negligible bias. 
+- `Small TMLE` and `Large TMLE` refer to using APS only to select of the outcome regression estimator in the small-trial and large-trial implementation, respectively. 
+- `Small CTMLE` and `Large CTMLE` refer to using APS for selection of the outcome regression estimator and collaborative selection of the known propensity score estimator in the small-trial and large-trial implementation, respectively.'
 
-```{r}
-cont <- data.frame(rbind(unadj, fixed, small_tmle, large_tmle, large_tmle_Qonly))
-yay.cont <- make.pretty.wrapper(est=cont,
+```{r, echo=F}
+yay.cont <- make.pretty.wrapper(est=
+                                  data.frame(rbind(unadj, fixed, small_tmle_Qonly, small_tmle,
+                                                   large_tmle_Qonly, large_tmle)),
                                 # variance estimate for precision comparison
                                 var.base = (unadj$se^2), 
-                                these.rows=c('Unadjusted','Static', 'Small APS', 
-                                             'Large APS', 'APS outcome only'),
-                                digit=1)
+                                these.rows=c('Unadjusted','Static', 'Small TMLE', 'Small CTMLE', 
+                                             'Large TMLE', 'Large CTMLE'))
 
-kable(yay.cont, caption='Comparative results with a **continous outcome** for arm-specific outcomes and intervention effect. 95%CI are shown in parentheses. `Rel.Var.` is the estimated variance of a given approach to that of the unadjusted approach.  `Savings` is the estimated reduction in sample size from using an adjusted approach, assuming negligible bias.')
+kable(yay.cont)
+rm(unadj, fixed, small_tmle_Qonly, small_tmle, large_tmle_Qonly, large_tmle)
 ```
 
 
 
-## Demonstration with a binary outcome
+### Subgroup analyses
+
+For demonstration with smaller sample sizes, as seen in subgroup analyses, we now examine effects defined within strata defined by baseline age group (18-30 years vs. 31+ years) and gender.
+
+See `aps_wrapper()` function within `MakePretty_App.R` for the wrapper function used to generate estimates from the algorithms under consideration. 
+
   
+```{r, warning=F}
+this.label <- c('Older men', 'Older women', 'Younger men', 'Younger women')
+age.indicator <- c(0,0,1,1)
+gender.indicator <- c(1,0,1,0)
+set.seed(1)
+CONT <- NULL
+for(j in 1:length(this.label)){
+  data_sub <- data_input[data_input$gender==gender.indicator[j] & 
+                           data_input$young==age.indicator[j],]
+  est_sub <- aps_wrapper(goal=goal, data_input=data_sub, 
+                    small_aps=small_aps, large_aps=large_aps)
+  print(kable(est_sub$compact, caption=paste0('Subgroup results for ', this.label[j],
+              ' (N=', nrow(data_sub), ')') ) )
+  CONT <- rbind(CONT, cbind(group=this.label[j], est=rownames(est_sub$est),
+                            est_sub$est))
+
+}
+```
+
+
+# Demonstration with a binary outcome 
 
 We now consider binary outcome that CD4 count at 20 week window is >350. For demonstration, we now do effect estimation on the relative scale (i.e., arithmetic risk ratio).
 
-```{r}
+```{r, warning=F}
 set.seed(1)
 data_input$Y <- as.numeric(data_input$cd420 > 350)
 goal <- 'aRR'
+est_bin <- aps_wrapper(goal=goal, data_input=data_input, 
+                       small_aps=small_aps, large_aps=large_aps)
 ```
 
-### Estimator implementation
+## Compact comparison of results
 
+Comparative results with a **binary outcome** for arm-specific outcomes and intervention effect. 
+
+- `Rel.Var.` is the estimated variance of a given approach to that of the unadjusted approach.  
+
+- `Savings` is the estimated reduction in sample size from using an adjusted approach, assuming negligible bias. 
+
+- `Small TMLE` and `Large TMLE` refer to using APS only to select of the outcome regression estimator in the small-trial and large-trial implementation, respectively. 
+- `Small CTMLE` and `Large CTMLE` refer to using APS for selection of the outcome regression estimator and collaborative selection of the known propensity score estimator in the small-trial and large-trial implementation, respectively.'
+
+
+```{r, echo=F}
+yay.bin <- est_bin$compact
+kable(yay.bin)
+```
+
+
+  
 ```{r, warning=F}
-# unadjusted
-unadj <- Stage2(goal = goal, data.input = data_input, do.data.adapt =F)
-# fixed adjustment
-fixed <- Stage2(goal = goal, data.input = data_input, 
-                           do.data.adapt = F, 
-                           QAdj='age', Qform='glm', 
-                           gAdj='gender', gform='glm')
-# TMLE with small APS
-small_tmle <- Stage2(goal = goal, data.input = data_input, 
-                    do.data.adapt = TRUE, V = 5, 
-                    cand.QAdj =  small_aps$cand.QAdj, cand.Qform = small_aps$cand.Qform,
-                    cand.gAdj =  small_aps$cand.gAdj, cand.gform = small_aps$cand.gform)
-small_tmle
-# selection for outcome regression
-small_aps$cand.QAdj[small_tmle$QAdj]
-# selection for pscore
-small_aps$cand.gAdj[small_tmle$gAdj]
+set.seed(1)
+BIN <- NULL
+for(j in 1:length(this.label)){
+  data_sub <- data_input[data_input$gender==gender.indicator[j] & 
+                           data_input$young==age.indicator[j],]
+  est_sub <- aps_wrapper(goal=goal, data_input=data_sub, 
+                    small_aps=small_aps, large_aps=large_aps)
+  print(kable(est_sub$compact, caption=paste0('Subgroup results for ', this.label[j],
+              ' (N=', nrow(data_sub), ')') ) )
+  BIN <- rbind(BIN, cbind(this.label[j], est_sub$est))
 
-# TMLE with large APS
-large_tmle <- Stage2(goal = goal, data.input = data_input, 
-                    do.data.adapt = TRUE, V = 5, 
-                    cand.QAdj =  large_aps$cand.QAdj, cand.Qform = large_aps$cand.Qform,
-                    cand.gAdj =  large_aps$cand.gAdj, cand.gform = large_aps$cand.gform)
-large_tmle
-# selection for outcome regression
-#large_aps$cand.QAdj[large_tmle$QAdj]
-# selection for pscore
-large_aps$cand.gAdj[large_tmle$gAdj]
-
-# TMLE adjusting in outcome regression with large APS selection and unadjusted pscore
-large_tmle_Qonly <- Stage2(goal = goal, data.input = data_input, 
-                    # do.data.adapt = F, V = 5, 
-                    QAdj= unlist(large_aps$cand.QAdj[large_tmle$QAdj]), 
-                    Qform=large_tmle$Qform, 
-                    gAdj=NULL, gform='glm')
-large_tmle_Qonly
-
+}
 ```
 
 
-```{r}
-bin <- data.frame(rbind(unadj, fixed, small_tmle, large_tmle, large_tmle_Qonly))
-yay.bin <- make.pretty.wrapper(est=bin,
-                                # variance estimate for precision comparison
-                                var.base = (unadj$se^2), 
-                                these.rows=c('Unadjusted','Static', 'Small APS', 
-                                             'Large APS', 'APS outcome only'),
-                               scaler=1, in.percent=F, digit=2
-                                )
-kable(yay.bin, caption='Comparative results with a **binary outcome** for arm-specific outcomes and intervention effect. 95%CI are shown in parentheses. `Rel.Var.` is the estimated variance of a given approach to that of the unadjusted approach.  `Savings` is the estimated reduction in sample size from using an adjusted approach, assuming negligible bias.')
+```{r, echo=F, include=F, results='hide'}
+library('xtable')
+x <- rbind(c('Continuous',rep('',ncol(yay.cont)-1)), yay.cont, 
+           c('Binary',rep('',ncol(yay.bin)-1)),  yay.bin)
+x <- cbind( est=rep(c('','Unadj','Stat', 'Small TMLE', 'Small CTMLE', 'Large TMLE', 'Large CTMLE'),2),x)
+print( xtable(x[, colnames(x)!='Savings']),  include.rownames=FALSE)
 ```
-
 
 ## Checking Type-1 error control
 
@@ -346,14 +420,16 @@ round(t1b,3)
 ```
 
 
-```{r, echo=F}
-library('xtable')
+```{r, echo=F, include=F, results='hide'}
 x <- rbind(yay.cont, yay.bin)
-x <- cbind( y=c('Continuous',rep('',4), 'Binary',rep('',4)),
+x <- cbind( y=c('Continuous',rep('',5), 'Binary',rep('',5)),
            est=row.names(yay.cont), x)
-x <- x[x$est!='APS outcome only',]
+x <- x[-grep('Small TMLE', x$est),]
+x <- x[-grep('Large TMLE', x$est),]
 x <- subset(x, select=-c(Intervention, Control))
 t1 <- paste0( round(c(t1c[,'reject'],t1b[,'reject'])*100,1),'%')
 x <- cbind(x, t1)
 print( xtable(x[, colnames(x)!='Savings']),  include.rownames=FALSE)
+
 ```
+
