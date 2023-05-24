@@ -11,7 +11,7 @@ library(hrbrthemes)
 #####################################################################
 # Inputs to the file 
 # 1. n: Sample size 
-n <- 40
+n <- 500
 # 2. Number of replications 
 nReps <- 5000
 # 3. Number of folds in cross validation, 
@@ -37,7 +37,8 @@ if(sim_flag == TRUE){
   sim <- "binY"
 }
 # 7. Specify whether there is an effect or whether the effect is null 
-effect <- F
+effect <- T
+
 # 8. Specify the Data Generating Process used for the simulated data in Sim_Functions.R 
 if(sim=='contY'){
   if(!effect) {
@@ -147,7 +148,7 @@ for(j in 1:length(expt_type)){
                ests, yay, var.ratio=yay[1,'var']/yay[,'var'], re=yay[,'mse']/yay[1,'mse'] )
   yay <- cbind(yay, savings=(1-yay$re))
   psi.ave <- c(psi.ave, round(mean(UNADJ$psi),3))
-  if(!effect){ #skip under the null
+  if(effect){ #skip under the null
     power.gain <- c(power.gain, 
                     round( (yay[yay$ests=='Large APS', 'power'] - 
                               yay[yay$ests=='Unadjusted', 'power'])*100))
@@ -208,6 +209,7 @@ psi.ave
 power.gain
 summary(power.gain)
 round ( summary( YAY[YAY$ests=='Large APS', 're'] ), 2) 
+ 1- round ( summary( YAY[YAY$ests=='Large APS', 're'] ), 2) 
 round ( summary( YAY[ YAY$ests=='Small APS', 're'] ), 2) 
 
 #=====================================================

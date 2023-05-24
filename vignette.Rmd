@@ -246,10 +246,10 @@ large_tmle_Qonly
 
 
 Comparative results with a **continous outcome** for arm-specific outcomes and intervention effect. 
-- `Rel.Var.` is the estimated variance of a given approach to that of the unadjusted approach.  
-- `Savings` is the estimated reduction in sample size from using an adjusted approach, assuming negligible bias. 
-- `Small TMLE` and `Large TMLE` refer to using APS only to select of the outcome regression estimator in the small-trial and large-trial implementation, respectively. 
-- `Small CTMLE` and `Large CTMLE` refer to using APS for selection of the outcome regression estimator and collaborative selection of the known propensity score estimator in the small-trial and large-trial implementation, respectively.'
++ `Rel.Var.` is the estimated variance of a given approach to that of the unadjusted approach. 
++ `Savings` is the estimated reduction in sample size from using an adjusted approach, assuming negligible bias.
++ `Small TMLE` and `Large TMLE` refer to using APS only to select of the outcome regression estimator in the small-trial and large-trial implementation, respectively. 
++ `Small CTMLE` and `Large CTMLE` refer to using APS for selection of the outcome regression estimator and collaborative selection of the known propensity score estimator in the small-trial and large-trial implementation, respectively.'
 
 ```{r, echo=F}
 yay.cont <- make.pretty.wrapper(est=
@@ -274,9 +274,9 @@ See `aps_wrapper()` function within `MakePretty_App.R` for the wrapper function 
 
   
 ```{r, warning=F}
-this.label <- c('Older men', 'Older women', 'Younger men', 'Younger women')
-age.indicator <- c(0,0,1,1)
-gender.indicator <- c(1,0,1,0)
+this.label <- c('Older women', 'Younger women', 'Older men','Younger men')
+age.indicator <- c(0,1,0,1)
+gender.indicator <- c(0,0,1,1)
 set.seed(1)
 CONT <- NULL
 for(j in 1:length(this.label)){
@@ -286,11 +286,23 @@ for(j in 1:length(this.label)){
                     small_aps=small_aps, large_aps=large_aps)
   print(kable(est_sub$compact, caption=paste0('Subgroup results for ', this.label[j],
               ' (N=', nrow(data_sub), ')') ) )
-  CONT <- rbind(CONT, cbind(group=this.label[j], est=rownames(est_sub$est),
-                            est_sub$est))
+  CONT <- rbind(CONT, cbind(group=c(this.label[j], rep('', nrow(est_sub$compact)-1)), 
+                            est=rownames(est_sub$est),
+                            est_sub$compact))
 
 }
 ```
+
+
+```{r, echo=F, include=F, results='hide'}
+library('xtable')
+x <- cbind( group=c('Overall',rep('', nrow(est_sub$compact)-1)),
+                   est=rownames(est_sub$est), 
+                   yay.cont)
+x <- rbind(x, CONT)                           
+print( xtable(x[, colnames(x)!='Savings']),  include.rownames=FALSE)
+```
+
 
 
 # Demonstration with a binary outcome 
@@ -305,16 +317,7 @@ est_bin <- aps_wrapper(goal=goal, data_input=data_input,
                        small_aps=small_aps, large_aps=large_aps)
 ```
 
-## Compact comparison of results
-
-Comparative results with a **binary outcome** for arm-specific outcomes and intervention effect. 
-
-- `Rel.Var.` is the estimated variance of a given approach to that of the unadjusted approach.  
-
-- `Savings` is the estimated reduction in sample size from using an adjusted approach, assuming negligible bias. 
-
-- `Small TMLE` and `Large TMLE` refer to using APS only to select of the outcome regression estimator in the small-trial and large-trial implementation, respectively. 
-- `Small CTMLE` and `Large CTMLE` refer to using APS for selection of the outcome regression estimator and collaborative selection of the known propensity score estimator in the small-trial and large-trial implementation, respectively.'
+Comparative results with a **binary outcome** for arm-specific outcomes and intervention effect, overall and for select subgroups.
 
 
 ```{r, echo=F}
@@ -331,26 +334,30 @@ for(j in 1:length(this.label)){
   data_sub <- data_input[data_input$gender==gender.indicator[j] & 
                            data_input$young==age.indicator[j],]
   est_sub <- aps_wrapper(goal=goal, data_input=data_sub, 
-                    small_aps=small_aps, large_aps=large_aps)
+                         small_aps=small_aps, large_aps=large_aps)
   print(kable(est_sub$compact, caption=paste0('Subgroup results for ', this.label[j],
-              ' (N=', nrow(data_sub), ')') ) )
-  BIN <- rbind(BIN, cbind(this.label[j], est_sub$est))
+                                              ' (N=', nrow(data_sub), ')') ) )
+
+  BIN <- rbind(BIN, cbind(group=c(this.label[j], rep('', nrow(est_sub$compact)-1)), 
+                            est=rownames(est_sub$est),
+                            est_sub$compact))
 
 }
 ```
 
 
+
 ```{r, echo=F, include=F, results='hide'}
-library('xtable')
-x <- rbind(c('Continuous',rep('',ncol(yay.cont)-1)), yay.cont, 
-           c('Binary',rep('',ncol(yay.bin)-1)),  yay.bin)
-x <- cbind( est=rep(c('','Unadj','Stat', 'Small TMLE', 'Small CTMLE', 'Large TMLE', 'Large CTMLE'),2),x)
+x <- cbind( group=c('Overall',rep('', nrow(est_sub$compact)-1)),
+                   est=rownames(est_sub$est), 
+                   yay.bin)
+x <- rbind(x, BIN)                           
 print( xtable(x[, colnames(x)!='Savings']),  include.rownames=FALSE)
 ```
 
-## Checking Type-1 error control
+# Checking Type-1 error control
 
-We now demonstrate out method's ability to preserve Type-1 error control. To do so, we permute the treatment indicator to make the null hypothesis true ($\psi=0$). Then we implement each of the estimators and repeat 5000 times. 
+We now demonstrate out method's ability to preserve Type-1 error control. To do so, we permute the treatment indicator to make the null hypothesis true ($\psi=0$ for the continuous outcome and $\psi=1$ for the binary outcome). Then we implement each of the estimators and repeat 5000 times. 
 
 ```{r, results='hide', eval=F}
 set.seed(1)

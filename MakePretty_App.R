@@ -90,7 +90,7 @@ aps_wrapper <- function(goal, data_input, V=5, small_aps, large_aps){
                                  # variance estimate for precision comparison
                                  var.base = (unadj$se^2), 
                                  these.rows=rownames(est),
-                                 digit=ifelse(goal=='RD',1,2) )
+                                 digit=ifelse(goal=='RD',0,2) )
   
   list(unadj=unadj, fixed=fixed,  small_tmle=small_tmle, small_tmle_Qonly=small_tmle_Qonly, 
        large_tmle=large_tmle, large_tmle_Qonly=large_tmle_Qonly,
