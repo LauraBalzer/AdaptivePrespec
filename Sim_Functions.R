@@ -86,81 +86,23 @@ gen.data.contY <- function(N, expt_type, effect, verbose=F){
   noise <- runif(N, min = 0, max = 1)
   
   
-  if(expt_type == "linear_1"){
+  if(expt_type == "noisy_only_predictor_2"){
     get.contY <- function(A, W1,W2,W3,W4,W5, UY, noise){
-      90 + A + 4*W1 + 3*W2 + 2*W3 + 3*W4 + 4*W5 + 2*A*W1
-      # 90 + 1*A + 4*(W1+W2+W3+W4+W5+W2*W5 ) - W1*W3 + W1*(20-15*W4) + (1-W1)*(-20+ 15*W4) + A*UY/3 
+      90 + .1*A + 3*UY + noise
     }
-  } else if(expt_type == "linear_2"){
+  } else if(expt_type == "noisy_linear_1_r_less"){
     get.contY <- function(A, W1,W2,W3,W4,W5, UY, noise){
-      90 + A + 4*W1 + 3*W2 + 2*W3 + 3*W4 + 4*W5 + 2*A*W1 + A*W2*W1
+      90 + 0.07*A + .7*W1 + .3*W2 + .1*W3 + .3*W4 + .4*W5 + 0.25*A*W1 + 5*UY + noise
     }
-  } else if(expt_type == "linear_3"){
+  } else if(expt_type == "noisy_multicollinear_cand1_r_less"){
     get.contY <- function(A, W1,W2,W3,W4,W5, UY, noise){
-      90 + A + 4*W1 + 3*W2 + 2*W3 + 3*W4 + 4*W5 + 2*A*W1 + A*W2*W4 + 3*A*W3
+      150 + .05*A + .33*W1 - .25*W2 + .5*W3 - .2*W4 + .05*W5 + .01*A*W1 + .02*A*W3 + .3*A*UY + 5.8*UY + noise
     }
-  } else if(expt_type == "multicollinear"){
+  } else if(expt_type == "noisy_polynomial_r_less"){
     get.contY <- function(A, W1,W2,W3,W4,W5,UY, noise){
-      90 + A + 4*W1 + 3*W2 + 2*W3 + 3*W4 + 4*W5 + 2*A*W1 + A*W2*W4 + 3*A*W3 + noise*W5*A
+      90 + .17*A + .33*(W1+W2+W3+W4+W5) - .2*W1*W3 + .5*W1*(.8-.6*W4)*W3 + .25*(1-W1)*(-.2+ .15*W4) + 4.7*UY + noise
     }
-  } else if(expt_type == "squared"){
-    get.contY <- function(A, W1,W2,W3,W4,W5, UY, noise){
-      90 + 1*A + 4*(W1+W2+W3+W4+W5) - W1*W3 + W1*(20-15*W4) + (1-W1)*(-20+ 15*W4) 
-    }
-  } else if(expt_type == "polynomial"){
-    get.contY <- function(A, W1,W2,W3,W4,W5, UY, noise){
-      90 + 1*A + 4*(W1+W2+W3+W4+W5) - W1*W3 + W1*(20-15*W4)*W3 + (1-W1)*(-20+ 15*W4) 
-    }
-  } else if(expt_type == "noisy_linear_1"){
-    get.contY <- function(A, W1,W2,W3,W4,W5, UY, noise){
-      # 90 + A + 4*W1 + 3*W2 + 2*W3 + 3*W4 + 4*W5 + 2*A*W1 + UY
-      90 + 0.5*A + 4*W1 + 3*W2 + 2*W3 + 3*W4 + 4*W5 + 0.75*A*W1 + UY
-    } 
-    }	else if(expt_type == "noisy_linear_1_cand1"){
-    get.contY <- function(A, W1,W2,W3,W4,W5, UY, noise){
-      180 + 20*A + W1 - 2*W2 + 3*W3 - 5*W4 + 5*A*W1 + 2*UY # Candidate 1
-      # 90 + 20*A + W1 - 2*W2 + 3*W3 - 5*W4 + 5*A*W1 + 2*UY # Candidate 2
-      # A + 4*W1 + W2 + 5*W3 + 10*A*W4 + 4*W5 + UY # Candidate 3
-    }
-  } else if(expt_type == "noisy_linear_1_cand2"){
-    get.contY <- function(A, W1,W2,W3,W4,W5, UY, noise){
-      #180 + 20*A + W1 - 2*W2 + 3*W3 - 5*W4 + 5*A*W1 + 2*UY # Candidate 1
-       90 + 20*A + W1 - 2*W2 + 3*W3 - 5*W4 + 5*A*W1 + 2*UY # Candidate 2
-      # A + 4*W1 + W2 + 5*W3 + 10*A*W4 + 4*W5 + UY # Candidate 3
-    }
-  } else if(expt_type == "noisy_linear_1_cand3"){
-    get.contY <- function(A, W1,W2,W3,W4,W5, UY, noise){
-      #180 + 20*A + W1 - 2*W2 + 3*W3 - 5*W4 + 5*A*W1 + 2*UY # Candidate 1
-      # 90 + 20*A + W1 - 2*W2 + 3*W3 - 5*W4 + 5*A*W1 + 2*UY # Candidate 2
-       A + 4*W1 + W2 + 5*W3 + 10*A*W4 + 4*W5 + UY # Candidate 3
-    }
-  } else if(expt_type == "noisy_linear_2"){
-    get.contY <- function(A, W1,W2,W3,W4,W5, UY, noise){
-      90 + A + 4*W1 + 3*W2 + 2*W3 + 3*W4 + 4*W5 + 2*A*W1 + A*W2*W1 + UY
-    }
-  } else if(expt_type == "noisy_linear_3"){
-    get.contY <- function(A, W1,W2,W3,W4,W5, UY, noise){
-      90 + A + 4*W1 + 3*W2 + 2*W3 + 3*W4 + 4*W5 + 2*A*W1 + A*W2*W4 + 3*A*W3 + 2*UY 
-    }
-  } else if(expt_type == "noisy_multicollinear_cand1"){
-    get.contY <- function(A, W1,W2,W3,W4,W5, UY, noise){
-      #180 + .2*A + W1 - 1.2*W2 + W3 - 1.3*W4 + W5 + .05*A*W1 + .05*A*W2 + .05*A*W3 + .05*A*W4 + noise*W5*A + .5*A*UY/3 # Candidate 1
-      150 + .1*A + W1 - W2 + 4*W3 - W4 + W5 + .1*A*W1 + .1*A*W3 + A*UY/3 # Candidate 2
-    }
-  } else if(expt_type == "noisy_multicollinear_cand2"){
-    get.contY <- function(A, W1,W2,W3,W4,W5, UY, noise){
-      #180 + A + W1 - W2 + W3 - W4 + W5 + 5*A*W1 + A*W2 + 7*A*W3 + A*W4 + noise*W5*A + A*UY/3 # Candidate 1
-      150 + .3*A + W1 - W2 + 4*W3 - W4 + W5 + .1*A*W1 + .2*A*W3 + A*UY/3 # Candidate 2
-    }
-  } else if(expt_type == "noisy_squared"){
-    get.contY <- function(A, W1,W2,W3,W4,W5, UY, noise){
-      90 + 1*A + 4*(W1+W2+W3+W4+W5) - W1*W3 + W1*(20-15*W4) + (1-W1)*(-20+ 15*W4) + UY 
-    }
-  } else if(expt_type == "noisy_polynomial"){
-    get.contY <- function(A, W1,W2,W3,W4,W5, UY, noise){
-      90 + 1*A + 4*(W1+W2+W3+W4+W5) - W1*W3 + W1*(20-15*W4)*W3 + (1-W1)*(-20+ 15*W4) + UY 
-    }
-  }
+  } 
   
   # Get the function for continuous Y
   Y0 <- get.contY(A=0, W1=W1, W2=W2, W3=W3, W4=W4, W5=W5, UY=UY, noise=noise)
