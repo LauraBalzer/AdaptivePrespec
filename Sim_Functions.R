@@ -203,88 +203,30 @@ gen.data.binY <- function(N, expt_type, effect, verbose=F){
   UY <- runif(N, 0, 1) # exogenous noise
   noise <- runif(N, 0, 1) # noisy variable
   
-  if(expt_type == "linear_1"){
-    get.binY <- function(A, W1,W2,W3,W4,W5,UY, noise,verbose = F){
-      p <- plogis(A + 4*W1 + 3*W2 + 2*W3 + 3*W4 + 4*W5 + 2*A*W1)
-      if(verbose) { print(summary(p)); hist(p) }
-      p <- as.numeric(UY <  p)
-      p
-      # 90 + 1*A + 4*(W1+W2+W3+W4+W5+W2*W5 ) - W1*W3 + W1*(20-15*W4) + (1-W1)*(-20+ 15*W4) + A*UY/3 
-    }
-  } else if(expt_type == "linear_2"){
-    get.binY <- function(A, W1,W2,W3,W4,W5, UY, noise,verbose = F){
-      p <- plogis(A + 4*W1 + 3*W2 + 2*W3 + 3*W4 + 4*W5 + 2*A*W1 + A*W2*W1)
-      if(verbose) { print(summary(p)); hist(p) }
-      p <- as.numeric(UY <  p)
-      p
-    }
-  } else if(expt_type == "linear_3"){
-    get.binY <- function(A, W1,W2,W3,W4,W5, UY, noise,verbose = F){
-      p <- plogis(A + 4*W1 + 3*W2 + 2*W3 + 3*W4 + 4*W5 + 2*A*W1 + A*W2*W4 + 3*A*W3)
-      if(verbose) { print(summary(p)); hist(p) }
-      p <- as.numeric(UY <  p)
-      p
-    }
-  } else if(expt_type == "multicollinear"){
-    get.binY <- function(A, W1,W2,W3,W4,W5,UY, noise, verbose = F){
-      p <- plogis(A + 4*W1 + 3*W2 + 2*W3 + 3*W4 + 4*W5 + 2*A*W1 + A*W2*W4 + 3*A*W3 + noise*W5*A)
-      if(verbose) { print(summary(p)); hist(p) }
-      p <- as.numeric(UY <  p)
-      p
-    }
-  } else if(expt_type == "squared"){
-    get.binY <- function(A, W1,W2,W3,W4,W5, UY, noise,verbose = F){
-      p <- plogis(A + 4*(W1+W2+W3+W4+W5) - W1*W3 + W1*(20-15*W4) + (1-W1)*(-20+ 15*W4))
-      if(verbose) { print(summary(p)); hist(p) }
-      p <- as.numeric(UY <  p)
-      p
-    }
-  } else if(expt_type == "polynomial"){
-    get.binY <- function(A, W1,W2,W3,W4,W5, UY, noise,verbose = F){
-      p <- plogis(1*A + 4*(W1+W2+W3+W4+W5) - W1*W3 + W1*(20-15*W4)*W3 + (1-W1)*(-20+ 15*W4))
-      if(verbose) { print(summary(p)); hist(p) }
-      p <- as.numeric(UY <  p)
-      p
-    }
-  } else if(expt_type == "noisy_linear"){
+  if(expt_type == "noisy_linear"){
     get.binY <- function(A, W1, W2, W3, W4, W5, UY, noise, verbose = F){
-      p <- plogis(A + W1 - W2 + W3 - W4 + W5 - 2*A*W1 + UY)
-      if(verbose) { print(summary(p)); hist(p) }
-      p <- as.numeric(UY <  p)
-      p
-    }
-  } else if(expt_type == "noisy_linear_2"){
-    get.binY <- function(A, W1,W2,W3,W4,W5, UY, noise,verbose = F){
-      p <- plogis(A + 4*W1 + 3*W2 + 2*W3 + 3*W4 + 4*W5 + 2*A*W1 + A*W2*W1 + UY)
-      if(verbose) { print(summary(p)); hist(p) }
-      p <- as.numeric(UY <  p)
-      p
-    }
-  } else if(expt_type == "noisy_linear_3"){
-    get.binY <- function(A, W1,W2,W3,W4,W5, UY, noise,verbose = F){
-      p <- plogis(A + 4*W1 + 3*W2 + 2*W3 + 3*W4 + 4*W5 + 2*A*W1 + A*W2*W4 + 3*A*W3 + 2*UY)
+      p <- plogis(A + W1 - W2 + W3 - W4 + W5 - 2*A*W1 + noise)
       if(verbose) { print(summary(p)); hist(p) }
       p <- as.numeric(UY <  p)
       p
     }
   } else if(expt_type == "noisy_multicollinear"){
     get.binY <- function(A, W1,W2,W3,W4,W5,UY, noise, verbose = F){
-      # p <- plogis(A + 4*W1 + 3*W2 + 2*W3 + 3*W4 + 4*W5 + 2*A*W1 + A*W2*W4 + 3*A*W3 + noise*W5*A + A*UY/3)
-      p <- plogis(A + W1 + W2 + W3 + W4 + W5 + A*W1 + A*W2*W4 + A*W3 + noise*W5*A + A*UY/3)
-      if(verbose) { print(summary(p)); hist(p) }
-      p <- as.numeric(UY <  p)
-      p
-    }
-  } else if(expt_type == "noisy_squared"){
-    get.binY <- function(A, W1,W2,W3,W4,W5, UY, noise,verbose = F){
-      p <- plogis(A + 4*(W1+W2+W3+W4+W5) - W1*W3 + W1*(20-15*W4) + (1-W1)*(-20+ 15*W4) + UY)
+      p <- plogis(A + W1 + W2 + W3 + W4 + W5 + A*W1 + A*W2*W4 + A*W3 + noise*W5*A + noise)
       if(verbose) { print(summary(p)); hist(p) }
       p <- as.numeric(UY <  p)
       p
     }
   } else if(expt_type == "noisy_polynomial"){
     get.binY <- function(A, W1,W2,W3,W4,W5, UY, noise,verbose = F){
-      p <- plogis(A + (W1+W2+W3+W4+W5) - W1*W3 + W1*(2*W4)*W3 + (1-W1)*(-W4) + UY)
+      p <- plogis(A + (W1+W2+W3+W4+W5) - W1*W3 + W1*(2*W4)*W3 + (1-W1)*(-W4) + noise)
+      if(verbose) { print(summary(p)); hist(p) }
+      p <- as.numeric(UY <  p)
+      p
+    }
+  } else if(expt_type == "treatment_only"){
+    get.binY <- function(A,W1,W2,W3,W4,W5, UY, noise, verbose = F){
+      p <- plogis(.1*A + 0*W1 + 0*W2 + 0*W3 + 0*W4 + 0*W5 + 2*noise)
       if(verbose) { print(summary(p)); hist(p) }
       p <- as.numeric(UY <  p)
       p
