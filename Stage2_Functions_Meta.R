@@ -1,5 +1,5 @@
 ##############
-# Stage2_Functions.R 
+# Stage2_Functions_Meta.R 
 # R code to implement all Stage2 analyses to compare intervention effects between arms
 # Using TMLE with and without Adaptive Prespecification 
 
@@ -79,7 +79,7 @@
 #   
 #-------------------
 
-Stage2 <- function(goal='aRR', target='indv', data.input, 
+Stage2 <- function(goal='aRR', target='indv', sample.effect=T, data.input, 
                    QAdj=NULL, Qform='glm', gAdj=NULL, gform='glm',
                    do.data.adapt =F, 
                    cand.QAdj=NULL, cand.Qform='glm', cand.gAdj=NULL, cand.gform='glm',
@@ -108,7 +108,8 @@ Stage2 <- function(goal='aRR', target='indv', data.input,
   # ADAPTIVE PRESPECIFICATION
   # update: flexibility in CV-scheme and candidate prediction algorithms
   if(do.data.adapt){
-    select <- do.adaptive.prespec(goal=goal, target=target, break.match = break.match, 
+    select <- do.adaptive.prespec(goal=goal, target=target, sample.effect=sample.effect,
+                                  break.match = break.match, 
                                   Ldata= data.input, V=V,
                                   cand.QAdj=cand.QAdj, cand.Qform=cand.Qform,
                                   cand.gAdj=cand.gAdj, cand.gform=cand.gform,
@@ -126,13 +127,20 @@ Stage2 <- function(goal='aRR', target='indv', data.input,
     
   } else{
     # QAdj <- gAdj <- 'U' # do NOT overwrite the user inputs for QAdj and gAdj if do.data.adapt=F
-    Q.index <- g.index <- 1
+    if(is.null(QAdj) & is.null(gAdj) ){
+      # unadjusted estimator
+      Q.index <- g.index <- 1
+    } else{
+      # user-specified
+      Q.index <- g.index <- -99
+    }
   }
   
   # RUN FULL TMLE WITH ADJUSTMENT SET 
   # update: runs all code for point estimation on scaled outcome
   # update: need to pass in min/max values for outcome scaling for variance estimation 
-  est <- do.TMLE(goal=goal, target=target, train=data.input, QAdj=QAdj, Qform=Qform, 
+  est <- do.TMLE(goal=goal, target=target, sample.effect=sample.effect,
+                 train=data.input, QAdj=QAdj, Qform=Qform, 
                  gAdj=gAdj, gform=gform, scale_value = scale_value, scale_value_min = scale_value_min,
                  doing.CV=F, verbose=verbose)  
                  
@@ -264,7 +272,8 @@ get.IC.variance <- function(goal, target, Vdata, R1=NA, R0=NA, sample.effect=T,
     DY <- 1/R1*DY1 + 1/(1-R1)*DY1 - 1/(1-R0)*DY0 - 1/R0*DY0
   }
   
-  if(!doing.CV) print(paste0('Solve EIF: ', mean(DY) ))
+  # print the mean of EIF
+ # if(!doing.CV) print(paste0('Solve EIF: ', mean(DY) ))
 
   
   # estimated variance for txt specific means or if break the match	

@@ -80,10 +80,10 @@ gen.data.contY <- function(N, expt_type, effect, verbose=F){
   W3 <- runif(N, min=0, max=5) 
   W4 <- plogis(-2 +W1 + W2+ runif(N, 0, 2)) 
   W5 <- 1+ rbinom(N, size=3, p=0.3) 
-  # exogenous noise
+  # random noise
   UY <- runif(N, min=0, max=.5)
-  # random noise 
-  noise <- runif(n, min = 0, max = 1)
+  # more random noise 
+  noise <- runif(N, min = 0, max = 1)
   
   
   if(expt_type == "linear_1"){

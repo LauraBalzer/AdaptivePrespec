@@ -1,5 +1,5 @@
 ##############
-# Adapt_Functions_BigRCTs.R 
+# Adapt_Functions_Meta.R 
 # R code to implement adaptive prespecification
 
 # Modified from Adapt_Functions.R in https://github.com/LauraBalzer/TwoStageTMLE
@@ -30,9 +30,10 @@
 # remove.pscore: if T, remove the variable(s) selected for adjustment in the outcome regression from 
 #   candidates for the pscore... should only be used if doing adaptive prespec in RCT with few indpt units
 
-do.adaptive.prespec<- function(goal, target='indv', break.match=T, Ldata, V=5,
+do.adaptive.prespec<- function(goal, target='indv', sample.effect=T, break.match=T, Ldata, V=5,
                                cand.QAdj, cand.Qform, cand.gAdj, cand.gform, remove.pscore=F,
-                               QAdj=NULL, gAdj=NULL, scale_value, scale_value_min, verbose=F){
+                               QAdj=NULL, gAdj=NULL, scale_value, scale_value_min, verbose=F
+                               ){
   
   
   
@@ -62,7 +63,8 @@ do.adaptive.prespec<- function(goal, target='indv', break.match=T, Ldata, V=5,
     # if(verbose) print(cand.Qform)
     
     # do adaptive pre-specification to select from candidate approaches for Qbar
-    select.Q <- suppressWarnings( CV.selector(goal=goal, target=target, break.match=break.match, Ldata=Ldata,
+    select.Q <- suppressWarnings( CV.selector(goal=goal, target=target,sample.effect=sample.effect,
+                                              break.match=break.match, Ldata=Ldata,
                                               CAND.ADJ=cand.QAdj, CAND.FORM=cand.Qform, forQ=T, 
                                               scale_value=scale_value, scale_value_min=scale_value_min,
                                               folds=folds
@@ -98,7 +100,8 @@ do.adaptive.prespec<- function(goal, target='indv', break.match=T, Ldata, V=5,
   if( is.null(gAdj) ){ 		
    # if(verbose) print(cand.gform)
     
-    select.G <- suppressWarnings( CV.selector(goal=goal, target=target, break.match=break.match, Ldata=Ldata,
+    select.G <- suppressWarnings( CV.selector(goal=goal, target=target, sample.effect=sample.effect,
+                                              break.match=break.match, Ldata=Ldata,
                                               CAND.ADJ=cand.gAdj, CAND.FORM=cand.gform, forQ=F, 
                                               # input selected variables/form of the outcome regression
                                               QAdj= QAdj, Qform=Qform,
@@ -134,7 +137,8 @@ do.adaptive.prespec<- function(goal, target='indv', break.match=T, Ldata, V=5,
 #-----------------------------------------------------#-----------------------------------------------------
 
 
-CV.selector <- function(goal, target, break.match, Ldata, CAND.ADJ, CAND.FORM, 
+CV.selector <- function(goal, target, sample.effect, break.match, 
+                        Ldata, CAND.ADJ, CAND.FORM, 
                         forQ, QAdj=NULL, Qform=NULL,
                         scale_value, scale_value_min, folds){
   
@@ -160,14 +164,14 @@ CV.selector <- function(goal, target, break.match, Ldata, CAND.ADJ, CAND.FORM,
       IC.temp<- get.IC.CV(goal=goal, target=target, break.match=break.match, Ldata=Ldata,
                           QAdj=CAND.ADJ[[k]], Qform=CAND.FORM[k], gAdj=NULL, gform='glm',
                           scale_value=scale_value, scale_value_min=scale_value_min, 
-                          folds=folds)
+                          folds=folds, sample.effect=sample.effect)
     } else{
       # if collaboratively selecting the adjustment approach for the pscore
       IC.temp<- get.IC.CV(goal=goal, target=target, break.match=break.match, Ldata=Ldata, 
                           QAdj=QAdj, Qform=Qform, 
                           gAdj= CAND.ADJ[[k]], gform=CAND.FORM[k],
                           scale_value=scale_value, scale_value_min=scale_value_min, 
-                          folds=folds)
+                          folds=folds, sample.effect=sample.effect)
     }
     
     # estimating the CV risk for each candidate
@@ -205,7 +209,7 @@ CV.selector <- function(goal, target, break.match, Ldata, CAND.ADJ, CAND.FORM,
 #     - if stratify=T and # observations in a given class is <V, 
 #       then sets V=min observations in that fold
 get.IC.CV<- function(goal, target, break.match, Ldata, QAdj, Qform, gAdj=NULL, gform='glm', 
-                     scale_value, scale_value_min, folds){
+                     scale_value, scale_value_min, folds, sample.effect=T){
   
   
   nFolds <- length(folds)
@@ -219,14 +223,16 @@ get.IC.CV<- function(goal, target, break.match, Ldata, QAdj, Qform, gAdj=NULL, g
     train <- Ldata[!these,]
     
     # run full TMLE algorithm on the training set
-    train.out <- do.TMLE(goal=goal, target=target, train=train, QAdj=QAdj, Qform=Qform, 
+    train.out <- do.TMLE(goal=goal, target=target, sample.effect=sample.effect,
+                         train=train, QAdj=QAdj, Qform=Qform, 
                          gAdj=gAdj, gform=gform,
                          scale_value=scale_value, scale_value_min=scale_value_min,
                          doing.CV=T, verbose=F)	
     
     # get the relevant components of the IC for the validation set, 
     # using fits based on the training set
-    valid.out <- do.TMLE.validset(goal=goal, target=target, valid=valid, train.out=train.out,
+    valid.out <- do.TMLE.validset(goal=goal, target=target, sample.effect=sample.effect,
+                                  valid=valid, train.out=train.out,
                                   scale_value=scale_value, scale_value_min=scale_value_min)	
 
     # estimating the CV risk for each candidate
@@ -266,7 +272,8 @@ get.IC.CV<- function(goal, target, break.match, Ldata, QAdj, Qform, gAdj=NULL, g
 #		cross-validated risk estimate (loss=IC^2)
 #-----------------------------------------------------#-----------------------------------------------------
 
-do.TMLE.validset <- function(goal, target, valid, train.out, scale_value, scale_value_min){
+do.TMLE.validset <- function(goal, target, sample.effect, 
+                             valid, train.out, scale_value, scale_value_min){
 	
 	# J <- length(unique(valid$id) )
 
@@ -295,7 +302,8 @@ do.TMLE.validset <- function(goal, target, valid, train.out, scale_value, scale_
 	#=============================================
 
 	 get.IC.variance(goal=goal, target=target, Vdata=valid, R1=train.out$R1, R0=train.out$R0, 
-	                scale_value=scale_value, scale_value_min=scale_value_min, doing.CV=T)
+	                scale_value=scale_value, scale_value_min=scale_value_min, doing.CV=T, 
+	                sample.effect=sample.effect)
 	
 }
 
@@ -345,8 +353,9 @@ get.cand.adj <- function(all.cand, cand.Qform.fancy=NULL, cand.gform.fancy=NULL)
 # by Erin LeDell 
 get.folds <- function(V, Y, ids, stratify=T){
   
-  if(stratify & length(unique(Y))==2){
+  if(stratify & length(unique(Y))==2 & length(Y)==length(unique(ids))){
     # stratify on the outcome
+    # this option does not work for cluster randomized trials where # indpt units (IDs) < # rows in data
     classes <- tapply(1:length(Y), INDEX=Y, FUN=split, 1)
     ids.Y1 <- ids[classes$`1`]
     ids.noY1 <- ids[classes$`0`]

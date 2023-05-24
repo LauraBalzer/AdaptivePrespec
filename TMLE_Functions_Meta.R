@@ -1,5 +1,5 @@
 ##############
-# TMLE_Functions_BigRCTs.R 
+# TMLE_Functions_Meta.R 
 # R code to obtain point estimates with TMLE
 
 # Modified from Stage2_Functions.R in https://github.com/LauraBalzer/TwoStageTMLE
@@ -36,7 +36,8 @@
 #     (6) 'mars.corP' for MARS after screening 
 # See do.Init.Qbar for details
 
-do.TMLE <- function(goal, target='NOT.WORKING', train, QAdj, Qform='glm', gAdj=NULL, gform='glm',
+do.TMLE <- function(goal, target='NOT.WORKING', sample.effect, train,
+                    QAdj, Qform='glm', gAdj=NULL, gform='glm',
                     Q.out=NULL, p.out=NULL, 
                     scale_value, scale_value_min,
                     doing.CV=F, verbose=F) {	
@@ -93,7 +94,7 @@ do.TMLE <- function(goal, target='NOT.WORKING', train, QAdj, Qform='glm', gAdj=N
   #==========================================================
   variance.out <- get.IC.variance(goal=goal, target=target, Vdata=train, R1=R1, R0=R0,
                          scale_value = scale_value, scale_value_min = scale_value_min, 
-                         doing.CV = doing.CV)
+                         doing.CV = doing.CV, sample.effect = sample.effect)
   
 
   RETURN<- list(train=train, 	

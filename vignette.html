@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Laura B. Balzer (laura.balzer@berkeley.edu)" />
+
+<meta name="date" content="2023-05-24" />
+
+<title>Adaptive Prespecification - Vignette</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Adaptive Prespecification - Vignette</h1>
+<h4 class="author">Laura B. Balzer (<a href="mailto:laura.balzer@berkeley.edu" class="email">laura.balzer@berkeley.edu</a>)</h4>
+<h4 class="date">2023-05-24</h4>
+
+
+
+<p>Here we provide worked examples of using Adaptive Prespecification
+(APS) in TMLE for empirical efficiency maximization in randomized
+trials. From a pre-specified set, APS is used within TMLE to
+data-adaptively select the optimal combination of estimators of the
+<em>outcome regression</em> (i.e., conditional expectation of the
+outcome, given the randomized intervention and candidate covariates) and
+of the known <em>propensity score</em> (i.e., conditional probability of
+the intervention, given the candidate covariates) to minimize the
+cross-validated variance estimate.</p>
+<p>Key methods references include</p>
+<ul>
+<li>Balzer et al., <a href="https://pubmed.ncbi.nlm.nih.gov/27436797/">Adaptive
+pre-specification</a> in randomized trials with and without
+pair-matching, <em>Statistics in Medicine</em>, 2016</li>
+<li>Balzer et al., <a href="https://pubmed.ncbi.nlm.nih.gov/34939083/">Two-Stage TMLE</a> to
+reduce bias and improve efficiency in cluster randomized trials,
+<em>Biostatistics</em>, 2021</li>
+<li>Balzer et al., <a href="https://arxiv.org/abs/2210.17453">Adaptive
+Selection</a> of the Optimal Strategy to Improve Precision and Power in
+Randomized Trials, <em>arXiv</em>, 2022</li>
+</ul>
+<p>Example applications include</p>
+<ul>
+<li>Havlir et al., <a href="https://pubmed.ncbi.nlm.nih.gov/31314966/">HIV Testing and
+Treatment</a> with the Use of a Community Health Approach in Rural
+Africa, <em>NEJM</em>, 2019 with corresponding <a href="https://arxiv.org/abs/1808.03231">SAP</a></li>
+<li>Kakende et al., <a href="https://pubmed.ncbi.nlm.nih.gov/35908553/">A mid-level health
+manager intervention</a> to promote uptake of isoniazid preventive
+therapy among people with HIV in Uganda: a cluster randomised trial,
+<em>LancetHIV</em>, 2022 with corresponding <a href="https://arxiv.org/abs/2111.10467">SAP</a></li>
+<li>Hickey et al., <a href="https://pubmed.ncbi.nlm.nih.gov/36342940/">Effect of a one-time
+financial incentive</a> on linkage to chronic hypertension care in Kenya
+and Uganda: A randomized controlled trial, <em>PLoSOne</em>, 2022
+(corresponding SAP included in article’s supplementary materials)</li>
+</ul>
+<div id="example-dataset---actg-study-175" class="section level2">
+<h2>Example dataset - ACTG Study 175</h2>
+<p>For demonstration, we will use real data from the <a href="https://pubmed.ncbi.nlm.nih.gov/8813038/">AIDS Clinical Trials
+Group (ACTG) Study 175</a>. ACTG 175 was an individually randomized
+trial to evaluate the impact of monotherapy vs. combination therapy
+among persons with HIV. The data are publicly available through the <a href="https://CRAN.R-project.org/package=speff2trial"><code>speff2trial</code>
+package</a> by Juraska. For demonstration, we are focusing on adults,
+aged 18+ years. After loading the data, we do a bit of preprocessing to
+create binary indicators of being “young” (aged 18-30years), having a
+baseline CD4 count &gt;350, having a baseline CD8 count &gt;350, and
+recently starting on antiretroviral therapy (ART) within 1-52 weeks of
+baseline.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;speff2trial&quot;</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Loading required package: leaps</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Loading required package: survival</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># help(ACTG175)</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>data_input <span class="ot">&lt;-</span> ACTG175</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># subset the data  aged 18+</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>data_input <span class="ot">&lt;-</span> data_input[data_input<span class="sc">$</span>age <span class="sc">&gt;</span><span class="dv">17</span>,]</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># create indicators</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>data_input<span class="sc">$</span>young <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>( data_input<span class="sc">$</span>age <span class="sc">&lt;</span> <span class="dv">30</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>data_input<span class="sc">$</span>cd40bin <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(data_input<span class="sc">$</span>cd40 <span class="sc">&gt;</span> <span class="dv">350</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>data_input<span class="sc">$</span>cd80bin <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(data_input<span class="sc">$</span>cd80 <span class="sc">&gt;</span> <span class="dv">350</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>data_input<span class="sc">$</span>recent <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(data_input<span class="sc">$</span>strat<span class="sc">==</span><span class="dv">2</span>) </span></code></pre></div>
+</div>
+<div id="load-in-aps-functions-relevant-libraries-and-specify-key-variables" class="section level2">
+<h2>Load in APS functions, relevant libraries, and specify key
+variables</h2>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># https://github.com/LauraBalzer/AdaptivePrespec/</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;Stage2_Functions_Meta.R&quot;</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;TMLE_Functions_Meta.R&quot;</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;Adapt_Functions_Meta.R&quot;</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&#39;MakePretty_App.R&#39;</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;SuperLearner&quot;</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;glmnet&quot;</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;earth&quot;</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&#39;knitr&#39;</span>)</span></code></pre></div>
+<p>APS is applicable to both individually randomized trials and cluster
+randomized trials; therefore, we need to specify the independent unit
+with <code>id</code>. Additionally, we need to create a dummy indicator
+<code>U</code> equal to 1 for the unadjusted estimator, which is always
+included as a candidate. In cluster randomized trials, weights
+(<code>alpha</code>) can be included to target effect individual-level
+or cluster-level effects; see <a href="https://arxiv.org/abs/2110.09633">Benitez et al. (2022)</a> for
+details. In this individually randomized trial, set
+<code>alpha=1</code>. Finally, we specify the treatment indicator
+<code>A</code>, where <span class="math inline">\(A=1\)</span> for the
+intervention and <span class="math inline">\(A=0\)</span> for the
+control. We will specify the outcome <code>Y</code> below.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>data_input<span class="sc">$</span>id  <span class="ot">&lt;-</span> data_input<span class="sc">$</span>pidnum <span class="co"># patient id</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>data_input<span class="sc">$</span>U   <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>data_input<span class="sc">$</span>alpha <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>data_input<span class="sc">$</span>A   <span class="ot">&lt;-</span> data_input<span class="sc">$</span>treat </span></code></pre></div>
+</div>
+<div id="prespecifing-candidate-adjustment-variables-and-candidate-estimators" class="section level2">
+<h2>Prespecifing candidate adjustment variables and candidate
+estimators</h2>
+<p>As candidate adjustment variables, we consider demographic variables
+(e.g., age, gender), measures of disease severity (e.g., Karnofsky
+score, being symptomatic), history of ART use, and baseline measures of
+CD4 and CD8 counts. We refer to the help file
+(<code>help(ACTG175)</code>) for more information</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>all_cand <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;age&quot;</span>, <span class="st">&quot;young&quot;</span>, <span class="st">&quot;wtkg&quot;</span>, <span class="st">&quot;hemo&quot;</span>,</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;karnof&quot;</span>, <span class="st">&quot;oprior&quot;</span>, <span class="st">&quot;preanti&quot;</span>, </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;race&quot;</span>,  <span class="st">&quot;gender&quot;</span>, </span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;str2&quot;</span>, <span class="st">&quot;recent&quot;</span>,  <span class="st">&quot;symptom&quot;</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;cd40&quot;</span>, <span class="st">&quot;cd40bin&quot;</span>, <span class="st">&quot;cd80&quot;</span>, <span class="st">&quot;cd80bin&quot;</span>)</span></code></pre></div>
+<table>
+<caption>Baseline characteristics of adult (age 18+ years) participants
+in the ACTG 175 Study (<a href="https://pubmed.ncbi.nlm.nih.gov/8813038/" class="uri">https://pubmed.ncbi.nlm.nih.gov/8813038/</a>)</caption>
+<colgroup>
+<col width="45%" />
+<col width="18%" />
+<col width="18%" />
+<col width="18%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="left">Intervention</th>
+<th align="left">Control</th>
+<th align="left">Overall</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">N=1587</td>
+<td align="left">N=526</td>
+<td align="left">N=2113</td>
+</tr>
+<tr class="even">
+<td align="left">Age (years)</td>
+<td align="left">34 [29,40]</td>
+<td align="left">34 [29,40]</td>
+<td align="left">34 [29,40]</td>
+</tr>
+<tr class="odd">
+<td align="left">Aged 18-30 years</td>
+<td align="left">399 (25%)</td>
+<td align="left">137 (26%)</td>
+<td align="left">536 (25%)</td>
+</tr>
+<tr class="even">
+<td align="left">Male</td>
+<td align="left">1319 (83%)</td>
+<td align="left">427 (81%)</td>
+<td align="left">1746 (83%)</td>
+</tr>
+<tr class="odd">
+<td align="left">Non-white race</td>
+<td align="left">456 (29%)</td>
+<td align="left">154 (29%)</td>
+<td align="left">610 (29%)</td>
+</tr>
+<tr class="even">
+<td align="left">Weight (kg)</td>
+<td align="left">74 [67,82]</td>
+<td align="left">75 [68,84]</td>
+<td align="left">74 [67,83]</td>
+</tr>
+<tr class="odd">
+<td align="left">Has hemophilia</td>
+<td align="left">118 (7%)</td>
+<td align="left">37 (7%)</td>
+<td align="left">155 (7%)</td>
+</tr>
+<tr class="even">
+<td align="left">Karnofsky score (scale 0-100)</td>
+<td align="left">100 [90,100]</td>
+<td align="left">100 [90,100]</td>
+<td align="left">100 [90,100]</td>
+</tr>
+<tr class="odd">
+<td align="left">Symptomatic</td>
+<td align="left">279 (18%)</td>
+<td align="left">88 (17%)</td>
+<td align="left">367 (17%)</td>
+</tr>
+<tr class="even">
+<td align="left">ART experienced</td>
+<td align="left">926 (58%)</td>
+<td align="left">307 (58%)</td>
+<td align="left">1233 (58%)</td>
+</tr>
+<tr class="odd">
+<td align="left">Time on ART (days)</td>
+<td align="left">139 [0,739]</td>
+<td align="left">138 [0,731]</td>
+<td align="left">139 [0,735]</td>
+</tr>
+<tr class="even">
+<td align="left">Recently started ART (1-52wks prior)</td>
+<td align="left">312 (20%)</td>
+<td align="left">96 (18%)</td>
+<td align="left">408 (19%)</td>
+</tr>
+<tr class="odd">
+<td align="left">Non-zidovudine prior to baseline</td>
+<td align="left">31 (2%)</td>
+<td align="left">16 (3%)</td>
+<td align="left">47 (2%)</td>
+</tr>
+<tr class="even">
+<td align="left">Baseline CD4 count (cells/mm<span class="math inline">\(^3\)</span>)</td>
+<td align="left">339 [260,423]</td>
+<td align="left">346 [271,422]</td>
+<td align="left">340 [263,423]</td>
+</tr>
+<tr class="odd">
+<td align="left">Baseline CD4&gt;350</td>
+<td align="left">724 (46%)</td>
+<td align="left">252 (48%)</td>
+<td align="left">976 (46%)</td>
+</tr>
+<tr class="even">
+<td align="left">Baseline CD8 count (cells/mm<span class="math inline">\(^3\)</span>)</td>
+<td align="left">897 [655,1212]</td>
+<td align="left">880 [656,1190]</td>
+<td align="left">894 [655,1210]</td>
+</tr>
+<tr class="odd">
+<td align="left">Baseline CD48&gt;350</td>
+<td align="left">1540 (97%)</td>
+<td align="left">520 (99%)</td>
+<td align="left">2060 (97%)</td>
+</tr>
+</tbody>
+</table>
+<p>We consider two implementations of APS:</p>
+<ol style="list-style-type: decimal">
+<li><p><a href="https://pubmed.ncbi.nlm.nih.gov/27436797/">“Small
+APS”:</a> The candidate estimators of the outcome regression and
+propensity score are limited to “working” genearalized linear models
+(GLMs) with at most one covariate. This approach is recommended for
+small sample size (<span class="math inline">\(N&lt;40\)</span>).</p></li>
+<li><p><a href="https://arxiv.org/abs/2210.17453">“Large APS”:</a> The
+candidate estimators now consider adjusting for multiple covariates. The
+algorithms currently coded are main terms (<code>glm</code>), stepwise
+regression (<code>stepwise</code>), stepwise regression with
+interactions (<code>step.interaction</code>), LASSO
+(<code>lasso</code>), multivariate adaptive regression splines (MARS;
+<code>mars</code>), and MARS after screening based on pairwise
+correlations (<code>mars.corp</code>). The candidate estimators in the
+Small APS implementation (i.e., working GLMs with at most one covariate)
+are also included in the Large APS implementation.</p></li>
+</ol>
+<p>The <code>get.cand.adj</code> function generates the set of candidate
+learners. We input the candidate covariates (<code>all.cand</code>),
+estimators of the outcome regression (<code>cand.Qform.fancy</code>),
+and estimators of the propensity score (<code>cand.gform.fancy</code>).
+Setting <code>cand.Qform.fancy</code> and <code>cand.gform.fancy</code>
+to <code>NULL</code> will return working GLMs with at most 1 adjustment
+variable.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Small APS - working GLMs with at most 1 adjustment variable</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>small_aps <span class="ot">&lt;-</span> <span class="fu">get.cand.adj</span>(<span class="at">all.cand =</span> all_cand, <span class="at">cand.Qform.fancy =</span> <span class="cn">NULL</span>, <span class="at">cand.gform.fancy =</span> <span class="cn">NULL</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># small_aps</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Large APS - considering the candidates in Small APS as well as main terms,</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   stepwise, LASSO, and MARS with and without screening</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>large_aps  <span class="ot">&lt;-</span> <span class="fu">get.cand.adj</span>(<span class="at">all.cand =</span> all_cand, </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                          <span class="at">cand.Qform.fancy =</span> <span class="fu">c</span>(<span class="st">&quot;glm&quot;</span>, <span class="st">&quot;stepwise&quot;</span>, <span class="st">&quot;lasso&quot;</span>, <span class="st">&quot;mars&quot;</span>, <span class="st">&quot;mars.corP&quot;</span>), </span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>                          <span class="at">cand.gform.fancy =</span> <span class="fu">c</span>(<span class="st">&quot;glm&quot;</span>, <span class="st">&quot;stepwise&quot;</span>, <span class="st">&quot;lasso&quot;</span>, <span class="st">&quot;mars&quot;</span>, <span class="st">&quot;mars.corP&quot;</span>))</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co"># large_aps</span></span></code></pre></div>
+</div>
+<div id="demonstration-with-a-continuous-outcome" class="section level2">
+<h2>Demonstration with a continuous outcome</h2>
+<p>We first demonstrate implementation with a continuous outcome: CD4
+count at 20 +/- 5 weeks and for estimation of the effect on the
+difference scale (i.e., ATE).</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>data_input<span class="sc">$</span>Y   <span class="ot">&lt;-</span> data_input<span class="sc">$</span>cd420</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>goal <span class="ot">&lt;-</span> <span class="st">&#39;RD&#39;</span></span></code></pre></div>
+<div id="unadjusted-estimator" class="section level3">
+<h3>Unadjusted estimator</h3>
+<p>For comparison, we first consider the unadjusted estimator.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>unadj <span class="ot">&lt;-</span> <span class="fu">Stage2</span>(<span class="at">goal =</span> goal, <span class="at">data.input =</span> data_input, <span class="at">do.data.adapt =</span>F)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>unadj</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    Txt.est Txt.CI.lo Txt.CI.hi   Txt.se  Con.est Con.CI.lo Con.CI.hi   Con.se</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 383.0819  375.8667  390.2972 3.681325 336.7129  325.5124  347.9135 5.714671</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   psi      est    CI.lo    CI.hi       se         pval bias cover reject QAdj</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1  NA 46.36899 33.04561 59.69236 6.797766 9.027686e-12   NA    NA      1    1</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Qform gAdj gform</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1   glm    1   glm</span></span></code></pre></div>
+<p>The <code>Stage2</code> returns point estimates, 95% confidence
+intervals (CIs), and standard error estimates arm-specific endpoints
+(denoted <code>Txt</code> for intervention and <code>Con</code> for
+control) as well as the effect. The pvalue for null hypothesis testing
+is also generated. Additional output useful for simulations when we know
+the true value of the effect (<code>psi</code>) include
+<code>bias</code> and <code>cover</code> (indicating the 95%CI include
+the true value). Finally, <code>QAdj</code> and <code>Qform</code>
+indicate the selection of the adjustment variables and their form for
+the outcome regression, while <code>gAdj</code> and <code>gform</code>
+indicate the selection of the adjustment variables and their form for
+the propensity score.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># by design the unadjusted estimator includes the dummy indicator U</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>small_aps<span class="sc">$</span>cand.QAdj[unadj<span class="sc">$</span>QAdj]</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [[1]]</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;U&quot;</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>small_aps<span class="sc">$</span>cand.gAdj[unadj<span class="sc">$</span>gAdj]</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [[1]]</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;U&quot;</span></span></code></pre></div>
+</div>
+<div id="fixed-regression" class="section level3">
+<h3>Fixed regression</h3>
+<p>Also for comparison, we consider a TMLE with fixed adjustment for
+<code>age</code> in the outcome regression and for <code>gender</code>
+in the propensity score.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>fixed <span class="ot">&lt;-</span> <span class="fu">Stage2</span>(<span class="at">goal =</span> goal, <span class="at">data.input =</span> data_input, </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>                           <span class="at">do.data.adapt =</span> F, </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">QAdj=</span><span class="st">&#39;age&#39;</span>, <span class="at">Qform=</span><span class="st">&#39;glm&#39;</span>, </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>                           <span class="at">gAdj=</span><span class="st">&#39;gender&#39;</span>, <span class="at">gform=</span><span class="st">&#39;glm&#39;</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>fixed</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    Txt.est Txt.CI.lo Txt.CI.hi   Txt.se  Con.est Con.CI.lo Con.CI.hi   Con.se</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 383.1852  375.9749  390.3956 3.678814 336.4212  325.2867  347.5556 5.680947</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   psi      est    CI.lo    CI.hi       se        pval bias cover reject QAdj</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1  NA 46.76407 33.49889 60.02925 6.768075 4.86335e-12   NA    NA      1  -99</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Qform gAdj gform</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1   glm  -99   glm</span></span></code></pre></div>
+<p>The output will return <code>QAdj= -99</code> and
+<code>gAdj=-99</code> if fixed adjustment is being used.</p>
+</div>
+<div id="small-sample-aps-in-tmle" class="section level3">
+<h3>Small sample APS in TMLE</h3>
+<p>We now consider the small sample implementation of APS in TMLE. We
+now set <code>do.data.adapt=T</code>, specify the number of folds in
+cross-validation (<code>V</code>), as well as the candidate adjustment
+variables and estimators:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>small_tmle <span class="ot">&lt;-</span> <span class="fu">Stage2</span>(<span class="at">goal =</span> goal, <span class="at">data.input =</span> data_input, </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">do.data.adapt =</span> <span class="cn">TRUE</span>, <span class="at">V =</span> <span class="dv">5</span>, </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">cand.QAdj =</span>  small_aps<span class="sc">$</span>cand.QAdj, <span class="at">cand.Qform =</span> small_aps<span class="sc">$</span>cand.Qform,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>                    <span class="at">cand.gAdj =</span>  small_aps<span class="sc">$</span>cand.gAdj, <span class="at">cand.gform =</span> small_aps<span class="sc">$</span>cand.gform)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>small_tmle</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    Txt.est Txt.CI.lo Txt.CI.hi   Txt.se  Con.est Con.CI.lo Con.CI.hi   Con.se</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 383.6668  377.7603  389.5733 3.013588 335.1638  326.5275  343.8001 4.406357</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   psi      est    CI.lo    CI.hi       se         pval bias cover reject QAdj</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1  NA 48.50295 38.04003 58.96588 5.338324 1.029372e-19   NA    NA      1   14</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Qform gAdj gform</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1   glm   14   glm</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co"># selection for outcome regression</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>small_aps<span class="sc">$</span>cand.QAdj[small_tmle<span class="sc">$</span>QAdj]</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [[1]]</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;cd40&quot;</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="co"># selection for pscore</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>small_aps<span class="sc">$</span>cand.gAdj[small_tmle<span class="sc">$</span>gAdj]</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [[1]]</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;cd40&quot;</span></span></code></pre></div>
+<p>The outcome at baseline <code>cd40</code> was selected for adjustment
+in both the outcome regression and propensity score. Let’s examine the
+added benefit of additional adjustment in the propensity score by
+setting <code>gAdj=NULL</code> and <code>gform=glm</code>. This will
+generate a TMLE only adjusting in the outcome regression. For
+demonstration, we will use the same approach for estimating the outcome
+regression as was selected previously.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>small_tmle_Qonly <span class="ot">&lt;-</span> <span class="fu">Stage2</span>(<span class="at">goal =</span> goal, <span class="at">data.input =</span> data_input, </span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># do.data.adapt = F, V = 5, </span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">QAdj=</span> <span class="fu">unlist</span>(small_aps<span class="sc">$</span>cand.QAdj[small_tmle<span class="sc">$</span>QAdj]), </span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>                    <span class="at">Qform=</span>small_tmle<span class="sc">$</span>Qform,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>                    <span class="at">gAdj=</span><span class="cn">NULL</span>, <span class="at">gform=</span><span class="st">&#39;glm&#39;</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Note: we could alternatively hardcode this by setting</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co">#         QAdj= &#39;cd40&#39;, Qform=&#39;glm&#39;, </span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>small_tmle_Qonly</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    Txt.est Txt.CI.lo Txt.CI.hi   Txt.se  Con.est Con.CI.lo Con.CI.hi   Con.se</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 383.6348    377.74  389.5296 3.007583 335.2535  326.5603  343.9468 4.435422</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   psi      est    CI.lo    CI.hi       se         pval bias cover reject QAdj</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1  NA 48.38125 37.87787 58.88463 5.358967 1.746894e-19   NA    NA      1  -99</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Qform gAdj gform</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1   glm  -99   glm</span></span></code></pre></div>
+</div>
+<div id="large-sample-aps-in-tmle" class="section level3">
+<h3>Large sample APS in TMLE</h3>
+<p>We now consider the large sample implementation of APS in TMLE.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>) <span class="co">#reset the seed bc its an adaptive algorithm</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>large_tmle <span class="ot">&lt;-</span> <span class="fu">Stage2</span>(<span class="at">goal =</span> goal, <span class="at">data.input =</span> data_input, </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">do.data.adapt =</span> <span class="cn">TRUE</span>, <span class="at">V =</span> <span class="dv">5</span>, </span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>                    <span class="at">cand.QAdj =</span>  large_aps<span class="sc">$</span>cand.QAdj, <span class="at">cand.Qform =</span> large_aps<span class="sc">$</span>cand.Qform,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>                    <span class="at">cand.gAdj =</span>  large_aps<span class="sc">$</span>cand.gAdj, <span class="at">cand.gform =</span> large_aps<span class="sc">$</span>cand.gform)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>large_tmle</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    Txt.est Txt.CI.lo Txt.CI.hi   Txt.se Con.est Con.CI.lo Con.CI.hi   Con.se</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 383.6534  377.9631  389.3437 2.903251 335.003  326.6953  343.3106 4.238654</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   psi      est    CI.lo    CI.hi       se         pval bias cover reject QAdj</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1  NA 48.65043 38.58089 58.71996 5.137612 2.812855e-21   NA    NA      1   20</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Qform gAdj gform</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 lasso   14   glm</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="co"># selection for outcome regression</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>large_aps<span class="sc">$</span>cand.QAdj[large_tmle<span class="sc">$</span>QAdj]</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [[1]]</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;age&quot;     &quot;young&quot;   &quot;wtkg&quot;    &quot;hemo&quot;    &quot;karnof&quot;  &quot;oprior&quot;  &quot;preanti&quot;</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [8] &quot;race&quot;    &quot;gender&quot;  &quot;str2&quot;    &quot;recent&quot;  &quot;symptom&quot; &quot;cd40&quot;    &quot;cd40bin&quot;</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [15] &quot;cd80&quot;    &quot;cd80bin&quot;</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="co"># selection for pscore</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>large_aps<span class="sc">$</span>cand.gAdj[large_tmle<span class="sc">$</span>gAdj]</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [[1]]</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;cd40&quot;</span></span></code></pre></div>
+<p>In the large sample implementation, the outcome regression was
+estimated with MARS, and, as before, the propensity score was estimated
+with working GLM adjusting for <code>cd40</code>. Let’s examine the
+added benefit of adaptive adjustment in the propensity score by setting
+<code>gAdj=NULL</code> and <code>gform=glm</code>. This will generate a
+TMLE only adjusting in the outcome regression, which was previously
+selected through our adaptive approach.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>large_tmle_Qonly <span class="ot">&lt;-</span> <span class="fu">Stage2</span>(<span class="at">goal =</span> goal, <span class="at">data.input =</span> data_input, </span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>                    <span class="co"># do.data.adapt = F, V = 5, </span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">QAdj=</span> <span class="fu">unlist</span>(large_aps<span class="sc">$</span>cand.QAdj[large_tmle<span class="sc">$</span>QAdj]), </span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>                    <span class="at">Qform=</span>large_tmle<span class="sc">$</span>Qform, </span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>                    <span class="at">gAdj=</span><span class="cn">NULL</span>, <span class="at">gform=</span><span class="st">&#39;glm&#39;</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>large_tmle_Qonly</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Txt.est Txt.CI.lo Txt.CI.hi   Txt.se  Con.est Con.CI.lo Con.CI.hi   Con.se</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 383.647  377.9677  389.3263 2.897663 335.0203  326.6598  343.3809 4.265683</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   psi      est    CI.lo    CI.hi       se         pval bias cover reject QAdj</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1  NA 48.62664 38.51951 58.73377 5.156792 4.115386e-21   NA    NA      1  -99</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Qform gAdj gform</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 lasso  -99   glm</span></span></code></pre></div>
+</div>
+<div id="compact-comparison-of-results" class="section level3">
+<h3>Compact comparison of results</h3>
+<p>Comparative results with a <strong>continous outcome</strong> for
+arm-specific outcomes and intervention effect. + <code>Rel.Var.</code>
+is the estimated variance of a given approach to that of the unadjusted
+approach. + <code>Savings</code> is the estimated reduction in sample
+size from using an adjusted approach, assuming negligible bias. +
+<code>Small TMLE</code> and <code>Large TMLE</code> refer to using APS
+only to select of the outcome regression estimator in the small-trial
+and large-trial implementation, respectively. + <code>Small CTMLE</code>
+and <code>Large CTMLE</code> refer to using APS for selection of the
+outcome regression estimator and collaborative selection of the known
+propensity score estimator in the small-trial and large-trial
+implementation, respectively.’</p>
+<table style="width:100%;">
+<colgroup>
+<col width="16%" />
+<col width="21%" />
+<col width="21%" />
+<col width="16%" />
+<col width="12%" />
+<col width="11%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="left">Intervention</th>
+<th align="left">Control</th>
+<th align="left">Effect</th>
+<th align="left">Rel.Var.</th>
+<th align="left">Savings</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Unadjusted</td>
+<td align="left">383 (376, 390)</td>
+<td align="left">337 (326, 348)</td>
+<td align="left">46 (33, 60)</td>
+<td align="left">1.000</td>
+<td align="left">0%</td>
+</tr>
+<tr class="even">
+<td align="left">Static</td>
+<td align="left">383 (376, 390)</td>
+<td align="left">336 (325, 348)</td>
+<td align="left">47 (33, 60)</td>
+<td align="left">0.991</td>
+<td align="left">0.9%</td>
+</tr>
+<tr class="odd">
+<td align="left">Small TMLE</td>
+<td align="left">384 (378, 390)</td>
+<td align="left">335 (327, 344)</td>
+<td align="left">48 (38, 59)</td>
+<td align="left">0.621</td>
+<td align="left">37.9%</td>
+</tr>
+<tr class="even">
+<td align="left">Small CTMLE</td>
+<td align="left">384 (378, 390)</td>
+<td align="left">335 (327, 344)</td>
+<td align="left">49 (38, 59)</td>
+<td align="left">0.617</td>
+<td align="left">38.3%</td>
+</tr>
+<tr class="odd">
+<td align="left">Large TMLE</td>
+<td align="left">384 (378, 389)</td>
+<td align="left">335 (327, 343)</td>
+<td align="left">49 (39, 59)</td>
+<td align="left">0.575</td>
+<td align="left">42.5%</td>
+</tr>
+<tr class="even">
+<td align="left">Large CTMLE</td>
+<td align="left">384 (378, 389)</td>
+<td align="left">335 (327, 343)</td>
+<td align="left">49 (39, 59)</td>
+<td align="left">0.571</td>
+<td align="left">42.9%</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="subgroup-analyses" class="section level3">
+<h3>Subgroup analyses</h3>
+<p>For demonstration with smaller sample sizes, as seen in subgroup
+analyses, we now examine effects defined within strata defined by
+baseline age group (18-30 years vs. 31+ years) and gender.</p>
+<p>See <code>aps_wrapper()</code> function within
+<code>MakePretty_App.R</code> for the wrapper function used to generate
+estimates from the algorithms under consideration.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>this.label <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&#39;Older women&#39;</span>, <span class="st">&#39;Younger women&#39;</span>, <span class="st">&#39;Older men&#39;</span>,<span class="st">&#39;Younger men&#39;</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>age.indicator <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>gender.indicator <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>CONT <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(this.label)){</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  data_sub <span class="ot">&lt;-</span> data_input[data_input<span class="sc">$</span>gender<span class="sc">==</span>gender.indicator[j] <span class="sc">&amp;</span> </span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>                           data_input<span class="sc">$</span>young<span class="sc">==</span>age.indicator[j],]</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  est_sub <span class="ot">&lt;-</span> <span class="fu">aps_wrapper</span>(<span class="at">goal=</span>goal, <span class="at">data_input=</span>data_sub, </span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>                    <span class="at">small_aps=</span>small_aps, <span class="at">large_aps=</span>large_aps)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">kable</span>(est_sub<span class="sc">$</span>compact, <span class="at">caption=</span><span class="fu">paste0</span>(<span class="st">&#39;Subgroup results for &#39;</span>, this.label[j],</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>              <span class="st">&#39; (N=&#39;</span>, <span class="fu">nrow</span>(data_sub), <span class="st">&#39;)&#39;</span>) ) )</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>  CONT <span class="ot">&lt;-</span> <span class="fu">rbind</span>(CONT, <span class="fu">cbind</span>(<span class="at">group=</span><span class="fu">c</span>(this.label[j], <span class="fu">rep</span>(<span class="st">&#39;&#39;</span>, <span class="fu">nrow</span>(est_sub<span class="sc">$</span>compact)<span class="sc">-</span><span class="dv">1</span>)), </span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>                            <span class="at">est=</span><span class="fu">rownames</span>(est_sub<span class="sc">$</span>est),</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>                            est_sub<span class="sc">$</span>compact))</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Table: Subgroup results for Older women (N=258)</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |            |Intervention   |Control        |Effect      |Rel.Var. |Savings |</span></span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |:-----------|:--------------|:--------------|:-----------|:--------|:-------|</span></span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Unadjusted  |390 (369, 411) |336 (308, 364) |54 (18, 89) |1.000    |0%      |</span></span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Static      |390 (369, 411) |337 (309, 364) |53 (18, 88) |0.979    |2.1%    |</span></span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Small TMLE  |392 (375, 410) |330 (306, 354) |62 (33, 92) |0.723    |27.7%   |</span></span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Small CTMLE |393 (375, 410) |328 (305, 351) |64 (35, 93) |0.682    |31.8%   |</span></span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Large TMLE  |392 (375, 410) |330 (306, 354) |62 (33, 92) |0.723    |27.7%   |</span></span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Large CTMLE |393 (375, 410) |328 (305, 351) |64 (35, 93) |0.682    |31.8%   |</span></span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Table: Subgroup results for Younger women (N=109)</span></span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |            |Intervention   |Control        |Effect        |Rel.Var. |Savings |</span></span>
+<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |:-----------|:--------------|:--------------|:-------------|:--------|:-------|</span></span>
+<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Unadjusted  |379 (347, 411) |393 (333, 452) |-14 (-81, 54) |1.000    |0%      |</span></span>
+<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Static      |379 (347, 411) |393 (333, 453) |-14 (-82, 54) |1.002    |-0.2%   |</span></span>
+<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Small TMLE  |393 (369, 417) |363 (324, 402) |30 (-16, 75)  |0.449    |55.1%   |</span></span>
+<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Small CTMLE |395 (371, 420) |358 (324, 392) |37 (-5, 79)   |0.386    |61.4%   |</span></span>
+<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Large TMLE  |393 (369, 417) |363 (324, 402) |30 (-16, 75)  |0.449    |55.1%   |</span></span>
+<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Large CTMLE |395 (371, 420) |358 (324, 392) |37 (-5, 79)   |0.386    |61.4%   |</span></span>
+<span id="cb15-42"><a href="#cb15-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb15-43"><a href="#cb15-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb15-44"><a href="#cb15-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Table: Subgroup results for Older men (N=1319)</span></span>
+<span id="cb15-45"><a href="#cb15-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb15-46"><a href="#cb15-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |            |Intervention   |Control        |Effect      |Rel.Var. |Savings |</span></span>
+<span id="cb15-47"><a href="#cb15-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |:-----------|:--------------|:--------------|:-----------|:--------|:-------|</span></span>
+<span id="cb15-48"><a href="#cb15-48" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Unadjusted  |379 (370, 388) |328 (314, 342) |51 (34, 67) |1.000    |0%      |</span></span>
+<span id="cb15-49"><a href="#cb15-49" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Static      |379 (370, 388) |328 (314, 342) |51 (34, 67) |0.999    |0.1%    |</span></span>
+<span id="cb15-50"><a href="#cb15-50" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Small TMLE  |379 (371, 386) |328 (318, 339) |50 (37, 63) |0.637    |36.3%   |</span></span>
+<span id="cb15-51"><a href="#cb15-51" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Small CTMLE |379 (371, 386) |328 (317, 339) |50 (37, 63) |0.636    |36.4%   |</span></span>
+<span id="cb15-52"><a href="#cb15-52" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Large TMLE  |378 (371, 385) |329 (319, 340) |49 (36, 62) |0.591    |40.9%   |</span></span>
+<span id="cb15-53"><a href="#cb15-53" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Large CTMLE |378 (371, 385) |329 (319, 340) |49 (36, 62) |0.591    |40.9%   |</span></span>
+<span id="cb15-54"><a href="#cb15-54" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb15-55"><a href="#cb15-55" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb15-56"><a href="#cb15-56" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Table: Subgroup results for Younger men (N=427)</span></span>
+<span id="cb15-57"><a href="#cb15-57" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb15-58"><a href="#cb15-58" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |            |Intervention   |Control        |Effect      |Rel.Var. |Savings |</span></span>
+<span id="cb15-59"><a href="#cb15-59" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |:-----------|:--------------|:--------------|:-----------|:--------|:-------|</span></span>
+<span id="cb15-60"><a href="#cb15-60" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Unadjusted  |393 (376, 410) |346 (322, 370) |47 (18, 77) |1.000    |0%      |</span></span>
+<span id="cb15-61"><a href="#cb15-61" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Static      |393 (376, 410) |347 (322, 371) |46 (17, 76) |0.994    |0.6%    |</span></span>
+<span id="cb15-62"><a href="#cb15-62" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Small TMLE  |392 (379, 405) |350 (331, 369) |42 (19, 65) |0.599    |40.1%   |</span></span>
+<span id="cb15-63"><a href="#cb15-63" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Small CTMLE |392 (379, 405) |351 (332, 370) |41 (18, 64) |0.598    |40.2%   |</span></span>
+<span id="cb15-64"><a href="#cb15-64" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Large TMLE  |393 (381, 405) |347 (329, 365) |46 (24, 67) |0.538    |46.2%   |</span></span>
+<span id="cb15-65"><a href="#cb15-65" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Large CTMLE |393 (380, 405) |348 (330, 366) |45 (23, 67) |0.534    |46.6%   |</span></span></code></pre></div>
+</div>
+</div>
+<div id="demonstration-with-a-binary-outcome" class="section level1">
+<h1>Demonstration with a binary outcome</h1>
+<p>We now consider binary outcome that CD4 count at 20 week window is
+&gt;350. For demonstration, we now do effect estimation on the relative
+scale (i.e., arithmetic risk ratio).</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>data_input<span class="sc">$</span>Y <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(data_input<span class="sc">$</span>cd420 <span class="sc">&gt;</span> <span class="dv">350</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>goal <span class="ot">&lt;-</span> <span class="st">&#39;aRR&#39;</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>est_bin <span class="ot">&lt;-</span> <span class="fu">aps_wrapper</span>(<span class="at">goal=</span>goal, <span class="at">data_input=</span>data_input, </span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>                       <span class="at">small_aps=</span>small_aps, <span class="at">large_aps=</span>large_aps)</span></code></pre></div>
+<p>Comparative results with a <strong>binary outcome</strong> for
+arm-specific outcomes and intervention effect, overall and for select
+subgroups.</p>
+<table>
+<colgroup>
+<col width="14%" />
+<col width="21%" />
+<col width="21%" />
+<col width="21%" />
+<col width="10%" />
+<col width="9%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="left">Intervention</th>
+<th align="left">Control</th>
+<th align="left">Effect</th>
+<th align="left">Rel.Var.</th>
+<th align="left">Savings</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Unadjusted</td>
+<td align="left">0.53 (0.51, 0.56)</td>
+<td align="left">0.43 (0.39, 0.48)</td>
+<td align="left">1.23 (1.10, 1.37)</td>
+<td align="left">1.000</td>
+<td align="left">0%</td>
+</tr>
+<tr class="even">
+<td align="left">Static</td>
+<td align="left">0.53 (0.51, 0.56)</td>
+<td align="left">0.43 (0.39, 0.48)</td>
+<td align="left">1.23 (1.11, 1.37)</td>
+<td align="left">1.001</td>
+<td align="left">-0.1%</td>
+</tr>
+<tr class="odd">
+<td align="left">Small TMLE</td>
+<td align="left">0.54 (0.52, 0.56)</td>
+<td align="left">0.43 (0.39, 0.46)</td>
+<td align="left">1.26 (1.15, 1.38)</td>
+<td align="left">0.707</td>
+<td align="left">29.3%</td>
+</tr>
+<tr class="even">
+<td align="left">Small CTMLE</td>
+<td align="left">0.54 (0.52, 0.56)</td>
+<td align="left">0.43 (0.39, 0.46)</td>
+<td align="left">1.26 (1.15, 1.38)</td>
+<td align="left">0.702</td>
+<td align="left">29.8%</td>
+</tr>
+<tr class="odd">
+<td align="left">Large TMLE</td>
+<td align="left">0.54 (0.52, 0.56)</td>
+<td align="left">0.43 (0.39, 0.46)</td>
+<td align="left">1.25 (1.15, 1.37)</td>
+<td align="left">0.678</td>
+<td align="left">32.2%</td>
+</tr>
+<tr class="even">
+<td align="left">Large CTMLE</td>
+<td align="left">0.54 (0.52, 0.56)</td>
+<td align="left">0.43 (0.39, 0.46)</td>
+<td align="left">1.26 (1.15, 1.37)</td>
+<td align="left">0.672</td>
+<td align="left">32.8%</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>BIN <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(this.label)){</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  data_sub <span class="ot">&lt;-</span> data_input[data_input<span class="sc">$</span>gender<span class="sc">==</span>gender.indicator[j] <span class="sc">&amp;</span> </span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>                           data_input<span class="sc">$</span>young<span class="sc">==</span>age.indicator[j],]</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  est_sub <span class="ot">&lt;-</span> <span class="fu">aps_wrapper</span>(<span class="at">goal=</span>goal, <span class="at">data_input=</span>data_sub, </span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>                         <span class="at">small_aps=</span>small_aps, <span class="at">large_aps=</span>large_aps)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">kable</span>(est_sub<span class="sc">$</span>compact, <span class="at">caption=</span><span class="fu">paste0</span>(<span class="st">&#39;Subgroup results for &#39;</span>, this.label[j],</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>                                              <span class="st">&#39; (N=&#39;</span>, <span class="fu">nrow</span>(data_sub), <span class="st">&#39;)&#39;</span>) ) )</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  BIN <span class="ot">&lt;-</span> <span class="fu">rbind</span>(BIN, <span class="fu">cbind</span>(<span class="at">group=</span><span class="fu">c</span>(this.label[j], <span class="fu">rep</span>(<span class="st">&#39;&#39;</span>, <span class="fu">nrow</span>(est_sub<span class="sc">$</span>compact)<span class="sc">-</span><span class="dv">1</span>)), </span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>                            <span class="at">est=</span><span class="fu">rownames</span>(est_sub<span class="sc">$</span>est),</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>                            est_sub<span class="sc">$</span>compact))</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Table: Subgroup results for Older women (N=258)</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |            |Intervention      |Control           |Effect            |Rel.Var. |Savings |</span></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |:-----------|:-----------------|:-----------------|:-----------------|:--------|:-------|</span></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Unadjusted  |0.53 (0.46, 0.60) |0.44 (0.32, 0.56) |1.21 (0.89, 1.65) |1.000    |0%      |</span></span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Static      |0.53 (0.46, 0.60) |0.44 (0.32, 0.56) |1.21 (0.89, 1.65) |0.984    |1.6%    |</span></span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Small TMLE  |0.54 (0.48, 0.60) |0.42 (0.31, 0.53) |1.28 (0.96, 1.71) |0.877    |12.3%   |</span></span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Small CTMLE |0.54 (0.48, 0.60) |0.42 (0.31, 0.54) |1.27 (0.96, 1.68) |0.847    |15.3%   |</span></span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Large TMLE  |0.54 (0.48, 0.60) |0.42 (0.31, 0.53) |1.28 (0.96, 1.71) |0.877    |12.3%   |</span></span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Large CTMLE |0.54 (0.48, 0.60) |0.42 (0.31, 0.53) |1.27 (0.96, 1.69) |0.841    |15.9%   |</span></span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Table: Subgroup results for Younger women (N=109)</span></span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |            |Intervention      |Control           |Effect            |Rel.Var. |Savings |</span></span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |:-----------|:-----------------|:-----------------|:-----------------|:--------|:-------|</span></span>
+<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Unadjusted  |0.54 (0.43, 0.65) |0.51 (0.35, 0.68) |1.05 (0.71, 1.55) |1.000    |0%      |</span></span>
+<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Static      |0.54 (0.43, 0.65) |0.52 (0.35, 0.69) |1.04 (0.71, 1.53) |1.000    |0%      |</span></span>
+<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Small TMLE  |0.58 (0.49, 0.66) |0.43 (0.32, 0.54) |1.35 (1.00, 1.83) |0.606    |39.4%   |</span></span>
+<span id="cb17-37"><a href="#cb17-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Small CTMLE |0.58 (0.49, 0.66) |0.43 (0.32, 0.53) |1.35 (1.01, 1.81) |0.571    |42.9%   |</span></span>
+<span id="cb17-38"><a href="#cb17-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Large TMLE  |0.58 (0.49, 0.66) |0.43 (0.32, 0.54) |1.35 (1.00, 1.83) |0.606    |39.4%   |</span></span>
+<span id="cb17-39"><a href="#cb17-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Large CTMLE |0.58 (0.49, 0.66) |0.43 (0.32, 0.53) |1.35 (1.01, 1.81) |0.571    |42.9%   |</span></span>
+<span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb17-41"><a href="#cb17-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb17-42"><a href="#cb17-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Table: Subgroup results for Older men (N=1319)</span></span>
+<span id="cb17-43"><a href="#cb17-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb17-44"><a href="#cb17-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |            |Intervention      |Control           |Effect            |Rel.Var. |Savings |</span></span>
+<span id="cb17-45"><a href="#cb17-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |:-----------|:-----------------|:-----------------|:-----------------|:--------|:-------|</span></span>
+<span id="cb17-46"><a href="#cb17-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Unadjusted  |0.53 (0.49, 0.56) |0.42 (0.36, 0.47) |1.25 (1.09, 1.45) |1.000    |0%      |</span></span>
+<span id="cb17-47"><a href="#cb17-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Static      |0.53 (0.49, 0.56) |0.42 (0.36, 0.47) |1.25 (1.09, 1.44) |1.000    |0%      |</span></span>
+<span id="cb17-48"><a href="#cb17-48" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Small TMLE  |0.53 (0.50, 0.55) |0.42 (0.37, 0.46) |1.25 (1.11, 1.41) |0.702    |29.8%   |</span></span>
+<span id="cb17-49"><a href="#cb17-49" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Small CTMLE |0.53 (0.50, 0.55) |0.42 (0.37, 0.46) |1.25 (1.11, 1.41) |0.702    |29.8%   |</span></span>
+<span id="cb17-50"><a href="#cb17-50" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Large TMLE  |0.52 (0.50, 0.55) |0.42 (0.38, 0.46) |1.25 (1.11, 1.40) |0.672    |32.8%   |</span></span>
+<span id="cb17-51"><a href="#cb17-51" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Large CTMLE |0.52 (0.50, 0.55) |0.42 (0.38, 0.46) |1.25 (1.11, 1.40) |0.669    |33.1%   |</span></span>
+<span id="cb17-52"><a href="#cb17-52" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb17-53"><a href="#cb17-53" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb17-54"><a href="#cb17-54" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Table: Subgroup results for Younger men (N=427)</span></span>
+<span id="cb17-55"><a href="#cb17-55" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb17-56"><a href="#cb17-56" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |            |Intervention      |Control           |Effect            |Rel.Var. |Savings |</span></span>
+<span id="cb17-57"><a href="#cb17-57" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |:-----------|:-----------------|:-----------------|:-----------------|:--------|:-------|</span></span>
+<span id="cb17-58"><a href="#cb17-58" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Unadjusted  |0.56 (0.50, 0.61) |0.45 (0.35, 0.55) |1.23 (0.98, 1.56) |1.000    |0%      |</span></span>
+<span id="cb17-59"><a href="#cb17-59" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Static      |0.56 (0.50, 0.61) |0.45 (0.36, 0.55) |1.23 (0.97, 1.55) |0.988    |1.2%    |</span></span>
+<span id="cb17-60"><a href="#cb17-60" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Small TMLE  |0.56 (0.51, 0.60) |0.45 (0.38, 0.53) |1.24 (1.03, 1.49) |0.616    |38.4%   |</span></span>
+<span id="cb17-61"><a href="#cb17-61" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Small CTMLE |0.56 (0.51, 0.60) |0.45 (0.37, 0.53) |1.24 (1.03, 1.49) |0.612    |38.8%   |</span></span>
+<span id="cb17-62"><a href="#cb17-62" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Large TMLE  |0.56 (0.51, 0.60) |0.45 (0.38, 0.53) |1.23 (1.03, 1.46) |0.549    |45.1%   |</span></span>
+<span id="cb17-63"><a href="#cb17-63" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; |Large CTMLE |0.56 (0.51, 0.60) |0.46 (0.39, 0.53) |1.22 (1.03, 1.45) |0.528    |47.2%   |</span></span></code></pre></div>
+</div>
+<div id="checking-type-1-error-control" class="section level1">
+<h1>Checking Type-1 error control</h1>
+<p>We now demonstrate out method’s ability to preserve Type-1 error
+control. To do so, we permute the treatment indicator to make the null
+hypothesis true (<span class="math inline">\(\psi=0\)</span> for the
+continuous outcome and <span class="math inline">\(\psi=1\)</span> for
+the binary outcome). Then we implement each of the estimators and repeat
+5000 times.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>nReps <span class="ot">&lt;-</span> <span class="dv">5000</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>sim.cols <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&#39;est&#39;</span>, <span class="st">&#39;bias&#39;</span>, <span class="st">&#39;cover&#39;</span>,<span class="st">&#39;reject&#39;</span>)</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>UNADJ <span class="ot">&lt;-</span>  <span class="fu">data.frame</span>(<span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="at">nrow=</span>nReps, <span class="at">ncol=</span><span class="fu">length</span>(sim.cols)))</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(UNADJ) <span class="ot">&lt;-</span> sim.cols</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>FIXED <span class="ot">&lt;-</span> SMALL <span class="ot">&lt;-</span> BIG <span class="ot">&lt;-</span> UNADJ</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>do.cont <span class="ot">&lt;-</span> T <span class="co"># specify if continuous or binary outcome</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(do.cont){</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>  data_input<span class="sc">$</span>Y   <span class="ot">&lt;-</span> data_input<span class="sc">$</span>cd420</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>  goal <span class="ot">&lt;-</span> <span class="st">&#39;RD&#39;</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>  psi <span class="ot">&lt;-</span> <span class="dv">0</span> </span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>  file.name <span class="ot">&lt;-</span> <span class="st">&#39;ACTG_null_cont_5000.Rdata&#39;</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span>{</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>  data_input<span class="sc">$</span>Y <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(data_input<span class="sc">$</span>cd420 <span class="sc">&gt;</span> <span class="dv">350</span>)</span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>  psi <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>  goal <span class="ot">&lt;-</span> <span class="st">&#39;aRR&#39;</span></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>  file.name <span class="ot">&lt;-</span> <span class="st">&#39;ACTG_null_bin_5000.Rdata&#39;</span></span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>dt <span class="ot">&lt;-</span> data_input</span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(r <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>nReps){</span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># randomly permute the treatment</span></span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>  dt<span class="sc">$</span>A <span class="ot">&lt;-</span> <span class="fu">sample</span>(dt<span class="sc">$</span>A)</span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>  <span class="co"># implement 3 estimators </span></span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>  unadj <span class="ot">&lt;-</span> <span class="fu">suppressWarnings</span>( <span class="fu">Stage2</span>(<span class="at">goal =</span> goal, <span class="at">data.input =</span> dt, <span class="at">do.data.adapt =</span>F, <span class="at">psi=</span>psi))</span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>  fixed <span class="ot">&lt;-</span> <span class="fu">suppressWarnings</span>( <span class="fu">Stage2</span>(<span class="at">goal =</span> goal, <span class="at">data.input =</span> dt, </span>
+<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">do.data.adapt =</span> F, </span>
+<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">QAdj=</span><span class="st">&#39;age&#39;</span>, <span class="at">Qform=</span><span class="st">&#39;glm&#39;</span>, </span>
+<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">gAdj=</span><span class="st">&#39;gender&#39;</span>, <span class="at">gform=</span><span class="st">&#39;glm&#39;</span>,  <span class="at">psi=</span>psi))</span>
+<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a>  small_tmle <span class="ot">&lt;-</span> <span class="fu">suppressWarnings</span>( <span class="fu">Stage2</span>(<span class="at">goal =</span> goal, <span class="at">data.input =</span> dt, </span>
+<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">do.data.adapt =</span> <span class="cn">TRUE</span>, <span class="at">V =</span> <span class="dv">5</span>, </span>
+<span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">cand.QAdj =</span>  small_aps<span class="sc">$</span>cand.QAdj, <span class="at">cand.Qform =</span> small_aps<span class="sc">$</span>cand.Qform,</span>
+<span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">cand.gAdj =</span>  small_aps<span class="sc">$</span>cand.gAdj, <span class="at">cand.gform =</span> small_aps<span class="sc">$</span>cand.gform,</span>
+<span id="cb18-37"><a href="#cb18-37" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">psi=</span>psi))</span>
+<span id="cb18-38"><a href="#cb18-38" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb18-39"><a href="#cb18-39" aria-hidden="true" tabindex="-1"></a>  large_tmle <span class="ot">&lt;-</span> <span class="fu">suppressWarnings</span>( <span class="fu">Stage2</span>(<span class="at">goal =</span> goal, <span class="at">data.input =</span> dt, </span>
+<span id="cb18-40"><a href="#cb18-40" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">do.data.adapt =</span> <span class="cn">TRUE</span>, <span class="at">V =</span> <span class="dv">5</span>, </span>
+<span id="cb18-41"><a href="#cb18-41" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">cand.QAdj =</span>  large_aps<span class="sc">$</span>cand.QAdj, <span class="at">cand.Qform =</span> large_aps<span class="sc">$</span>cand.Qform,</span>
+<span id="cb18-42"><a href="#cb18-42" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">cand.gAdj =</span>  large_aps<span class="sc">$</span>cand.gAdj, <span class="at">cand.gform =</span> large_aps<span class="sc">$</span>cand.gform,</span>
+<span id="cb18-43"><a href="#cb18-43" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">psi=</span>psi))</span>
+<span id="cb18-44"><a href="#cb18-44" aria-hidden="true" tabindex="-1"></a>  <span class="co"># save the output</span></span>
+<span id="cb18-45"><a href="#cb18-45" aria-hidden="true" tabindex="-1"></a>  UNADJ[r,] <span class="ot">&lt;-</span> unadj[,sim.cols]</span>
+<span id="cb18-46"><a href="#cb18-46" aria-hidden="true" tabindex="-1"></a>  FIXED[r,] <span class="ot">&lt;-</span> fixed[,sim.cols]</span>
+<span id="cb18-47"><a href="#cb18-47" aria-hidden="true" tabindex="-1"></a>  SMALL[r,] <span class="ot">&lt;-</span> small_tmle[,sim.cols]</span>
+<span id="cb18-48"><a href="#cb18-48" aria-hidden="true" tabindex="-1"></a>  BIG[r, ]  <span class="ot">&lt;-</span> large_tmle[,sim.cols]</span>
+<span id="cb18-49"><a href="#cb18-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(r)</span>
+<span id="cb18-50"><a href="#cb18-50" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb18-51"><a href="#cb18-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-52"><a href="#cb18-52" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(UNADJ, FIXED, SMALL, BIG, <span class="at">file=</span>file.name)</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">&#39;ACTG_null_cont_5000.Rdata&#39;</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>FIXED <span class="ot">&lt;-</span> UNADJ</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>t1c <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">colMeans</span>(UNADJ), <span class="fu">colMeans</span>(FIXED), <span class="fu">colMeans</span>(SMALL), <span class="fu">colMeans</span>(BIG) )</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(t1c,<span class="dv">3</span>)</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         est   bias cover reject</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] -0.040 -0.040 0.952  0.048</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [2,] -0.040 -0.040 0.952  0.048</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [3,]  0.156  0.156 0.948  0.052</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [4,]  0.105  0.105 0.947  0.053</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">&#39;ACTG_null_bin_5000.Rdata&#39;</span>)</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>t1b <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">colMeans</span>(UNADJ), <span class="fu">colMeans</span>(FIXED), <span class="fu">colMeans</span>(SMALL), <span class="fu">colMeans</span>(BIG) )</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(t1b,<span class="dv">3</span>)</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;        est  bias cover reject</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] 1.002 0.002 0.953  0.047</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [2,] 1.002 0.002 0.955  0.045</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [3,] 1.000 0.000 0.948  0.052</span></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [4,] 1.000 0.000 0.948  0.052</span></span></code></pre></div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
