@@ -92,3 +92,37 @@ x <- rbind( colMeans(Rsq.bin), colMeans(Rsq.cont))
 rownames(x) <- c('Binary', 'Continuous')
 colnames(x) <- c('Treatment only', 'Linear', 'Interactive', 'Polynomial')
 xtable(x, digits=c(1,2,2,2,2))
+
+
+###
+set.seed(1)
+mini <- function(N){
+  W1 <- rnorm(N, 0, 1)
+  W2 <- rnorm(N, 0, 1)
+  W3 <- rnorm(N, 0, 1)
+  W4 <- runif(N, 0, 1)
+  W5 <- runif(N, 0, 1)
+  UY <- runif(N, 0, 1) # exogenous noise
+  noise <- runif(N, 0, 1) # noisy variable
+
+
+  get.Y <- function(W1,W2,W3,W4,W5,UY,noise,A){
+    p <- plogis(A + W1 + W2 + W3 + W4 + W5 + A*W1 + A*W2*W4 + A*W3 + noise*W5*A + noise)
+    as.numeric(UY< p) 
+  }
+  Y1 <- get.Y(W1,W2,W3,W4,W5,UY,noise, A=1) 
+  Y0 <- get.Y(W1,W2,W3,W4,W5,UY,noise, A=0) 
+  
+  data.frame( d.W1neg = mean(Y1[W1<0])-mean(Y0[W1<0]),
+              d.W1pos = mean(Y1[W1>=0])-mean(Y0[W1>=0]),
+              r.W1neg =  mean(Y1[W1<0])/mean(Y0[W1<0]),
+              r.W1pos = mean(Y1[W1>=0])/mean(Y0[W1>=0])
+  )
+}
+X <- NULL
+for(j in 1:5000){
+ X<- rbind(X, mini(500))
+}
+
+
+

@@ -19,10 +19,10 @@ if(n==500){
   V<- 5
   folder <- 'OUTPUT/'
 } else if(n==100){
-  V <- 5
+  V <- 10
   folder <- 'OUTPUT_other/'
 } else if(n==40){
-  V=20
+  V <- 20
   folder <- 'OUTPUT_other/'
 }
 # 4. Specify whether MARS was included as a candidate
@@ -88,16 +88,17 @@ get.metrics <- function(estimator){
 # Function that computes the metrics for selected candidate algorithms 
 # winner is a data.frame that computes the proportion of times each candidate algorithm was selected for adjustment
 #=====================================================
-get.selection <- function(this.var, this.form ){
-  cand <- c('Unadj.','GLM', 'Main', 'Step', 'StepInt.',
+get.selection <- function(this.var, this.form, outcome.reg ){
+  all.cand <- c('U','W1','W2','W3','W4','W5')
+  cand <- c('Unadj','GLM', 'Main', 'Step', 'StepInt',
             'LASSO', 'MARS')
   winner <- data.frame(matrix(0, nrow=1, ncol=length(cand))) 
   colnames(winner) <- cand
-  winner['Unadj.'] <- sum(this.var==1 & this.form=='glm')
-  winner['GLM']<- sum(this.var!=1 & this.var!=-99 & this.form=='glm')
-  winner['Main']<- sum(this.var==-99 & this.form=='glm')
+  winner['Unadj'] <- sum(this.var==1 & this.form=='glm')
+  winner['GLM']<- sum(this.var!=1 & this.var<length(all.cand) & this.form=='glm')
+  winner['Main']<- sum(this.var>length(all.cand) & this.form=='glm')
   winner['Step'] <- sum(this.form=='stepwise')
-  winner['StepInt.'] <- sum(this.form=='step.interaction')
+  winner['StepInt'] <- sum(this.form=='step.interaction')
   winner['LASSO'] <- sum(this.form=='lasso')
   winner['MARS'] <- sum(this.form=='mars')
   winner
@@ -248,10 +249,11 @@ factorize_me <- function(dd,  strata.col='stratify'){
 # ESTIMATED SAMPLE SIZE SAVINGS GRAPH
 if(effect & n==500 ){
   
-  WINNERQ <- cbind( Target=c('Outcome', rep('', (nrow(WINNERQ)-1) )), 
+  WINNERQ <- cbind( Target=c('OutReg', rep('', (nrow(WINNERQ)-1) )), 
                     factorize_me(WINNERQ))
   WINNERG <- cbind( Target=c('PScore', rep('', (nrow(WINNERG)-1) )), 
                     factorize_me(WINNERG))
+  WINNERG[,'StepInt'] <- WINNERG[,'MARS'] <- '-'
   print(xtable(rbind(WINNERQ,WINNERG)), include.rownames=F)
   
   #rm(dd)

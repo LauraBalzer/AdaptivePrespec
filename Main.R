@@ -6,7 +6,7 @@
 # input: 
 #   main_dir: Set working directory as the current folder to import all source files
 #   outcome_flag: If true, sets the outcome as continuous outcome. If false, outcome is binary 
-#   expt_type: "noisy_linear_1", "noisy_multicollinear_cand1", "noisy_polynomial" DGP used to generate synthetic data
+#   expt_type: DGP used to generate synthetic data
 #   effect: If False, generates outcome without an effect 
 #   stratify: If True, applies stratified randomization
 #   n: Sample size 
@@ -19,8 +19,8 @@
 #   computes metrics like MSE, relative efficiency, coverage etc for all four estimators 
 #   1. Unadjusted
 #   2. Fixed adjustment
-#   3. Simple Adaptive Prespecification
-#   4. Fancy Adaptive Prespecification 
+#   3. Small sample ('Simple') Adaptive Prespecification
+#   4. Large sample ('Fancy') Adaptive Prespecification 
 #   and stores the resulting metrics for each estimator into a dataframe. 
 #####################################################################
 rm(list=ls())
@@ -61,7 +61,7 @@ if(outcome_flag == FALSE){
   goal <- 'RD'
   # alt.smaller <- F
 }
-expt_type <- "noisy_linear_1"
+expt_type <- "noisy_linear_1_r_less"
 effect <- TRUE
 stratify <- FALSE
 n <- 500
