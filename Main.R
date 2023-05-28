@@ -61,7 +61,7 @@ if(outcome_flag == FALSE){
   goal <- 'RD'
   # alt.smaller <- F
 }
-expt_type <- "noisy_linear_1_r_less"
+expt_type <- "noisy_linear"
 effect <- TRUE
 stratify <- FALSE
 n <- 500
