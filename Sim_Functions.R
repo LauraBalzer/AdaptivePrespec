@@ -86,19 +86,19 @@ gen.data.contY <- function(N, expt_type, effect, verbose=F){
   noise <- runif(N, min = 0, max = 1)
   
   
-  if(expt_type == "noisy_only_predictor_2"){
+  if(expt_type == "treatment_only"){
     get.contY <- function(A, W1,W2,W3,W4,W5, UY, noise){
       90 + .1*A + 3*UY + noise
     }
-  } else if(expt_type == "noisy_linear_1_r_less"){
+  } else if(expt_type == "noisy_linear"){
     get.contY <- function(A, W1,W2,W3,W4,W5, UY, noise){
       90 + 0.07*A + .7*W1 + .3*W2 + .1*W3 + .3*W4 + .4*W5 + 0.25*A*W1 + 5*UY + noise
     }
-  } else if(expt_type == "noisy_multicollinear_cand1_r_less"){
+  } else if(expt_type == "noisy_multicollinear"){
     get.contY <- function(A, W1,W2,W3,W4,W5, UY, noise){
       150 + .05*A + .33*W1 - .25*W2 + .5*W3 - .2*W4 + .05*W5 + .01*A*W1 + .02*A*W3 + .3*A*UY + 5.8*UY + noise
     }
-  } else if(expt_type == "noisy_polynomial_r_less"){
+  } else if(expt_type == "noisy_polynomial"){
     get.contY <- function(A, W1,W2,W3,W4,W5,UY, noise){
       90 + .17*A + .33*(W1+W2+W3+W4+W5) - .2*W1*W3 + .5*W1*(.8-.6*W4)*W3 + .25*(1-W1)*(-.2+ .15*W4) + 4.7*UY + noise
     }
