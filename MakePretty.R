@@ -95,7 +95,7 @@ get.selection <- function(this.var, this.form, outcome.reg ){
   winner <- data.frame(matrix(0, nrow=1, ncol=length(cand))) 
   colnames(winner) <- cand
   winner['Unadj'] <- sum(this.var==1 & this.form=='glm')
-  winner['GLM']<- sum(this.var!=1 & this.var<length(all.cand) & this.form=='glm')
+  winner['GLM']<- sum(this.var!=1 & this.var<=length(all.cand) & this.form=='glm')
   winner['Main']<- sum(this.var>length(all.cand) & this.form=='glm')
   winner['Step'] <- sum(this.form=='stepwise')
   winner['StepInt'] <- sum(this.form=='step.interaction')
@@ -263,7 +263,8 @@ if(effect & n==500 ){
   dd <- factorize_me(dd)
   dd$savings <- dd$savings*100
   dd$Value <- round(dd$savings)
-
+  
+  dd$DGP <- factor(dd$DGP, levels=c('Linear', 'Interactive', 'Polynomial') )
   dd$ests <- factor(dd$ests, levels=c('Static', 'Small APS', 'Large APS') )
   dd$savings <- as.numeric(dd$savings)
   text.size <- 16
@@ -271,11 +272,12 @@ if(effect & n==500 ){
   text.color <-'black'
   adder <-  5
   
-  this.legend.position <- 'bottom'
   if(sim_flag){
     ylab <- 'Estimated Sample Size Savings (%) - Continous Outcome'
+    this.legend.position <- 'bottom'
   }else{
     ylab <- 'Estimated Sample Size Savings (%) - Binary Outcome'
+    this.legend.position <- ''
   }
 
   g <- ggplot(dd, aes(fill=ests, y=savings, x=DGP)) + 
