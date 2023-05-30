@@ -15,34 +15,27 @@ n <- 500
 # 2. Number of replications 
 nReps <- 5000
 # 3. Number of folds in cross validation, 
-if(n==500){
-  V<- 5
-  folder <- 'OUTPUT/'
-} else if(n==100){
-  V <- 10
-  folder <- 'OUTPUT_other/'
-} else if(n==40){
-  V <- 20
-  folder <- 'OUTPUT_other/'
-}
+V<- 5
+folder <- 'OUTPUT/'
 # 4. Specify whether MARS was included as a candidate
 incl.mars <- T
 # 5. Verbose setting describes in detail the outputs produced 
 verbose <- F
 # 6. Flag for continuous outcome 
-sim_flag <- T
+sim_flag <- F
 if(sim_flag == TRUE){
   sim <- "contY"
 } else {
   sim <- "binY"
 }
 # 7. Specify whether there is an effect or whether the effect is null 
-effect <- T
+effect <- F
 
 # 8. Specify the Data Generating Process used for the simulated data in Sim_Functions.R 
 if(sim=='contY'){
   if(!effect) {
     # include setting with no prognostic variables
+    # May 30, 2023 -names simplified in Sims_Functions.R, but should still be clear
     expt_type <- c('noisy_only_predictor_2', 'noisy_linear_1_r_less','noisy_multicollinear_cand1_r_less', 'noisy_polynomial_r_less')
   }else{
     expt_type <- c('noisy_linear_1_r_less','noisy_multicollinear_cand1_r_less', 'noisy_polynomial_r_less')
@@ -171,37 +164,6 @@ for(j in 1:length(expt_type)){
   winnerg[, 3:ncol(winnerg)] <- paste0(round(winnerg[,3:ncol(winnerg)]/nReps*100, 1), '%')
   WINNERG <- rbind(WINNERG, winnerg)
   
-
-  # if(effect & n==500){
-  #   # Create the data frame that stores all the 95%CI metrics
-  #   data <- data.frame(
-  #     x=c(1: (nReps*4)), 
-  #     value1=c(UNADJ[["CI.lo"]],FORCE[["CI.lo"]],SIMPLE[["CI.lo"]],FANCY[["CI.lo"]]), 
-  #     value2=c(UNADJ[["CI.hi"]],FORCE[["CI.hi"]],SIMPLE[["CI.hi"]],FANCY[["CI.hi"]]),
-  #     ests=c(rep('Unadjusted',nReps), rep('Static',nReps), rep('Small APS', nReps), rep('Large APS', nReps))
-  #   )
-  #   
-  #   psi <- mean(UNADJ$psi)
-  #   # Plot
-  #   ggplot(data) +
-  #     geom_segment( aes(x=x, xend=x, y=value1, yend=value2), color="grey") +
-  #     #geom_point( aes(x=x, y=value1), color=rgb(0.2,0.7,0.1,0.5), size=3 ) +
-  #     #geom_point( aes(x=x, y=value2), color=rgb(0.7,0.2,0.1,0.5), size=3 ) +
-  #     geom_point( aes(x=x, y=value1, color=factor(ests)), size=1 ) +
-  #     geom_point( aes(x=x, y=value2, color=factor(ests)), size=1 ) +
-  #     geom_hline(yintercept=null.value, linetype='dashed', color='black', size=0.5) +
-  #     coord_flip()+
-  #     theme_ipsum() +
-  #     labs(title = dgp[j])+
-  #     theme(
-  #       legend.position = "none",
-  #       #plot.title = element_blank(),
-  #       axis.title.x = element_blank(),
-  #       axis.title.y = element_blank())
-  #   # ggsave(filename = paste0("PLOTS/", file.name, '.eps'))
-  #   ggsave(filename = paste0("PLOTS/", file.name, '.png'))
-  # }
-
   
   rm(yay, winnerq, winnerg)
 }
@@ -308,19 +270,3 @@ if(effect & n==500 ){
   
   
 }
-
-
-# save(YAY, file=paste0('Summary_', sim, paste0('Effect', effect),
-#                             paste0('N', n),'.Rdata') )
-
-
-# if(effect ){
-#   MAIN <- YAY
-#   # load in the null
-#   load(paste0('Summary_', sim, paste0('Effect', F),
-#                             paste0('N', n),'.Rdata') )
-#   
-#   print(xtable(cbind(MAIN[,this.order], YAY$power), 
-#                      digits=c(1, 1,1,1, rep(2, 7) )), include.rownames=FALSE)
-#   
-# }
