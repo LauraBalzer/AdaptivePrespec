@@ -1,8 +1,8 @@
 # Adaptive Selection of the Optimal Strategy to Improve Precision and Power in Randomized Trials
 By Laura B. Balzer (laura.balzer@berkeley.edu), Erica Cai, 	Lucas Godoy Garraza, and Pracheta Amaranath
 
-[ArXiv: https://arxiv.org/abs/2210.17453
-](https://academic.oup.com/biometrics/article/80/1/ujad034/7623142)
+[Biometrics (2024) ](https://academic.oup.com/biometrics/article/80/1/ujad034/7623142)
+
 In `vignette.Rmd` we provide worked examples of using Adaptive Prespecification (APS) with targeted minimum loss-based estimation (TMLE) for empirical efficiency maximization in randomized trials. From a pre-specified set, APS data-adaptively selects the optimal combination of estimators of the *outcome regression* (i.e., conditional expectation of the outcome, given the randomized intervention and candidate covariates) and of the known *propensity score* (i.e., conditional probability of the intervention, given the candidate covariates) to minimize the cross-validated variance estimate. 
 
 Key methods references include
